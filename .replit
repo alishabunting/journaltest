@@ -1,5 +1,5 @@
 language = "nodejs"
-run = "npm start"
+run = "npm run build:css & npm start"
 entrypoint = "server.js"
 modules = ["nodejs-20"]
 
