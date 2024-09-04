@@ -1,3 +1,15 @@
 language = "nodejs"
+<<<<<<< HEAD
 run = "npm start"
 entrypoint = "server.js"
+=======
+run = "npm run start"
+modules = ["nodejs-20"]
+
+[deployment]
+run = ["sh", "-c", "npm run start"]
+
+[[ports]]
+localPort = 3000
+externalPort = 80
+>>>>>>> origin/main
