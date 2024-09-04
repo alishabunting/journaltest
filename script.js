@@ -1,6 +1,16 @@
 let entries = [];
 let watchlist = [];
 
+function isLocalStorageAvailable() {
+    try {
+        localStorage.setItem('test', 'test');
+        localStorage.removeItem('test');
+        return true;
+    } catch(e) {
+        return false;
+    }
+}
+
 function addEntry() {
     const entryType = document.getElementById('entryType').value;
     const title = document.getElementById('titleInput').value;
@@ -189,11 +199,20 @@ function showNotification(message, type = 'success') {
 }
 
 function saveData(key, value) {
-    localStorage.setItem(key, value);
+    if (isLocalStorageAvailable()) {
+        localStorage.setItem(key, value);
+    } else {
+        console.log('Local storage is not available');
+    }
 }
 
 function loadData(key) {
-    return localStorage.getItem(key);
+    if (isLocalStorageAvailable()) {
+        return localStorage.getItem(key);
+    } else {
+        console.log('Local storage is not available');
+        return null;
+    }
 }
 
 document.getElementById('entryType').addEventListener('change', function() {
