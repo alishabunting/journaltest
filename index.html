@@ -1,60 +1,65 @@
-// index.html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Journal App</title>
+    <title>Film & TV Journal</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>My Journal</h1>
+        <h1>My Film & TV Journal</h1>
         
-        <div id="foodLog" class="module">
-            <h2>Food Log</h2>
-            <input type="text" id="foodInput" placeholder="Enter food">
-            <input type="text" id="symbolInput" placeholder="Enter symbol">
-            <button onclick="addFood()">Add Food</button>
-            <ul id="foodList"></ul>
-        </div>
+        <div id="notification" class="notification"></div>
         
-        <div id="moodTracker" class="module">
-            <h2>Mood Tracker</h2>
-            <select id="moodSelect">
-                <option value="😊">😊 Happy</option>
-                <option value="😐">😐 Neutral</option>
-                <option value="😢">😢 Sad</option>
+        <div id="addEntry" class="module">
+            <h2>Add New Entry</h2>
+            <select id="entryType">
+                <option value="movie">Movie</option>
+                <option value="tvShow">TV Show</option>
             </select>
-            <button onclick="logMood()">Log Mood</button>
-            <p id="currentMood"></p>
+            <input type="text" id="titleInput" placeholder="Title">
+            <input type="date" id="dateWatched">
+            <input type="number" id="seasonInput" placeholder="Season number (for TV shows)" style="display: none;">
+            <textarea id="notesInput" placeholder="Your thoughts..."></textarea>
+            <input type="number" id="ratingInput" min="1" max="5" placeholder="Rating (1-5)">
+            <input type="text" id="tagsInput" placeholder="Tags (comma-separated)">
+            <button onclick="addEntry()">Add Entry</button>
         </div>
         
-        <div id="notes" class="module">
-            <h2>Notes</h2>
-            <textarea id="notesArea" rows="4" cols="50"></textarea>
-            <button onclick="saveNotes()">Save Notes</button>
+        <div id="journalEntries" class="module">
+            <h2>Journal Entries</h2>
+            <input type="text" id="searchInput" placeholder="Search entries...">
+            <select id="sortSelect">
+                <option value="dateDesc">Date (Newest First)</option>
+                <option value="dateAsc">Date (Oldest First)</option>
+                <option value="ratingDesc">Rating (Highest First)</option>
+                <option value="ratingAsc">Rating (Lowest First)</option>
+                <option value="titleAsc">Title (A-Z)</option>
+                <option value="titleDesc">Title (Z-A)</option>
+            </select>
+            <div id="entriesList"></div>
         </div>
         
-        <div id="calendar" class="module">
-            <h2>Calendar</h2>
-            <input type="date" id="calendarDate">
-            <button onclick="addEvent()">Add Event</button>
-            <ul id="eventList"></ul>
+        <div id="favorites" class="module">
+            <h2>Favorites</h2>
+            <div id="favoritesList"></div>
         </div>
         
-        <div id="weeklyGoals" class="module">
-            <h2>Weekly Goals</h2>
-            <input type="text" id="goalInput" placeholder="Enter goal">
-            <button onclick="addGoal()">Add Goal</button>
-            <ul id="goalList"></ul>
+        <div id="watchlist" class="module">
+            <h2>Watchlist</h2>
+            <input type="text" id="watchlistInput" placeholder="Add to watchlist">
+            <button onclick="addToWatchlist()">Add</button>
+            <ul id="watchlistItems"></ul>
         </div>
         
-        <div id="dragModules" class="module">
-            <h2>Drag New Modules</h2>
-            <div class="draggable" draggable="true" ondragstart="drag(event)" id="timerModule">Timer</div>
-            <div class="draggable" draggable="true" ondragstart="drag(event)" id="imageModule">Image</div>
-            <div class="draggable" draggable="true" ondragstart="drag(event)" id="stickerModule">Sticker</div>
+        <div id="statistics" class="module">
+            <h2>Statistics</h2>
+            <p>Total Entries: <span id="totalEntries">0</span></p>
+            <p>Average Rating: <span id="averageRating">0</span></p>
+            <p>Top Tags: <span id="topTags"></span></p>
+            <p>Most Watched TV Shows: <span id="topTVShows"></span></p>
+            <p>Most Watched Genres: <span id="topGenres"></span></p>
         </div>
     </div>
 
