@@ -1,7 +1,7 @@
 {
-    "name": "journal-app",
+    "name": "film-tv-journal",
     "version": "1.0.0",
-    "description": "A JavaScript journal app",
+    "description": "A journal app for tracking movies and TV shows",
     "main": "server.js",
     "scripts": {
       "start": "node server.js"
