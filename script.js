@@ -1,3 +1,5 @@
+import { gsap } from "gsap";
+
 let quill;
 
 function app() {
@@ -30,20 +32,29 @@ function app() {
         },
 
         changePage(page) {
-            gsap.to(`.page-${this.currentPage}`, { opacity: 0, duration: 0.3, onComplete: () => {
-                this.currentPage = page;
-                gsap.fromTo(`.page-${page}`, { opacity: 0 }, { opacity: 1, duration: 0.3 });
-                
-                if (page === 'browseEntries') {
-                    this.renderEntries();
-                } else if (page === 'statistics') {
-                    setTimeout(() => {
-                        this.updateCharts();
-                    }, 0);
-                } else if (page === 'dashboard') {
-                    this.renderDashboard();
-                }
-            }});
+            const currentPageElement = document.querySelector(`.page-${this.currentPage}`);
+            const newPageElement = document.querySelector(`.page-${page}`);
+
+            if (currentPageElement && newPageElement) {
+                this.gsap.to(currentPageElement, { opacity: 0, duration: 0.3, onComplete: () => {
+                    currentPageElement.style.display = 'none';
+                    this.currentPage = page;
+                    newPageElement.style.display = 'block';
+                    this.gsap.fromTo(newPageElement, { opacity: 0 }, { opacity: 1, duration: 0.3 });
+                    
+                    if (page === 'browseEntries') {
+                        this.renderEntries();
+                    } else if (page === 'statistics') {
+                        setTimeout(() => {
+                            this.updateCharts();
+                        }, 0);
+                    } else if (page === 'dashboard') {
+                        this.renderDashboard();
+                    }
+                }});
+            } else {
+                console.error(`Page elements not found for ${this.currentPage} or ${page}`);
+            }
         },
 
         updateCharts() {
@@ -409,7 +420,11 @@ function deleteEntry(index) {
 
 // Initialize Alpine.js store
 document.addEventListener('alpine:init', () => {
-    Alpine.store('app', app());
+    Alpine.store('app', {
+        gsap: gsap, // Add this line to make GSAP available in your store
+        currentPage: 'dashboard',
+        // ... rest of your store properties and methods
+    });
 });
 
 // Run init after the DOM is fully loaded
