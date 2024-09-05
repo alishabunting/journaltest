@@ -1,7 +1,8 @@
 let quill;
 
-function journalApp() {
+function app() {
     return {
+        currentPage: 'dashboard',
         entries: [],
         entryType: 'movie',
         title: '',
@@ -16,15 +17,30 @@ function journalApp() {
         averageRating: 0,
         topTags: '',
         selectedItem: null,
+        username: '',
+        email: '',
+        watchlist: [],
 
         init() {
             this.loadEntries();
+            this.loadProfile();
+            this.loadWatchlist();
             this.$nextTick(() => {
-                this.renderEntries();
-                this.updateStatistics();
+                this.renderDashboard();
                 this.initQuill();
-                this.initChart();
+                this.initCharts();
             });
+        },
+
+        changePage(page) {
+            this.currentPage = page;
+            if (page === 'browseEntries') {
+                this.$nextTick(() => this.renderEntries());
+            } else if (page === 'statistics') {
+                this.$nextTick(() => this.updateCharts());
+            } else if (page === 'dashboard') {
+                this.$nextTick(() => this.renderDashboard());
+            }
         },
 
         initQuill() {
@@ -33,9 +49,15 @@ function journalApp() {
             });
         },
 
-        initChart() {
+        initCharts() {
+            this.initRatingChart();
+            this.initTimelineChart();
+            this.initTypeChart();
+        },
+
+        initRatingChart() {
             const ctx = document.getElementById('ratingChart').getContext('2d');
-            new Chart(ctx, {
+            this.ratingChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
@@ -52,6 +74,44 @@ function journalApp() {
                             stepSize: 1
                         }
                     }
+                }
+            });
+        },
+
+        initTimelineChart() {
+            const ctx = document.getElementById('timelineChart').getContext('2d');
+            this.timelineChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Entries Over Time',
+                        data: [],
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            stepSize: 1
+                        }
+                    }
+                }
+            });
+        },
+
+        initTypeChart() {
+            const ctx = document.getElementById('typeChart').getContext('2d');
+            this.typeChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Movies', 'TV Shows'],
+                    datasets: [{
+                        data: [0, 0],
+                        backgroundColor: ['rgba(255, 99, 132, 0.6)', 'rgba(54, 162, 235, 0.6)']
+                    }]
                 }
             });
         },
@@ -198,11 +258,45 @@ function journalApp() {
                 .map(([tag, count]) => `${tag} (${count})`)
                 .join(', ');
 
-            // Update chart
-            const chart = Chart.getChart('ratingChart');
-            if (chart) {
-                chart.data.datasets[0].data = ratingCounts;
-                chart.update();
+            // Update charts
+            this.updateRatingChart(ratingCounts);
+            this.updateTimelineChart();
+            this.updateTypeChart();
+        },
+
+        updateRatingChart(ratingCounts) {
+            if (this.ratingChart) {
+                this.ratingChart.data.datasets[0].data = ratingCounts;
+                this.ratingChart.update();
+            }
+        },
+
+        updateTimelineChart() {
+            const entriesByDate = this.entries.reduce((acc, entry) => {
+                const date = entry.date;
+                acc[date] = (acc[date] || 0) + 1;
+                return acc;
+            }, {});
+
+            const labels = Object.keys(entriesByDate).sort();
+            const data = labels.map(date => entriesByDate[date]);
+
+            if (this.timelineChart) {
+                this.timelineChart.data.labels = labels;
+                this.timelineChart.data.datasets[0].data = data;
+                this.timelineChart.update();
+            }
+        },
+
+        updateTypeChart() {
+            const typeCounts = this.entries.reduce((acc, entry) => {
+                acc[entry.entryType] = (acc[entry.entryType] || 0) + 1;
+                return acc;
+            }, {});
+
+            if (this.typeChart) {
+                this.typeChart.data.datasets[0].data = [typeCounts.movie || 0, typeCounts.tvShow || 0];
+                this.typeChart.update();
             }
         },
 
@@ -233,11 +327,97 @@ function journalApp() {
             if (savedEntries) {
                 this.entries = JSON.parse(savedEntries);
             }
+        },
+
+        saveProfile() {
+            localStorage.setItem('profile', JSON.stringify({
+                username: this.username,
+                email: this.email
+            }));
+            this.showNotification('Profile saved successfully!', 'success');
+        },
+
+        loadProfile() {
+            const savedProfile = localStorage.getItem('profile');
+            if (savedProfile) {
+                const profile = JSON.parse(savedProfile);
+                this.username = profile.username;
+                this.email = profile.email;
+            }
+        },
+
+        saveWatchlist() {
+            localStorage.setItem('watchlist', JSON.stringify(this.watchlist));
+        },
+
+        loadWatchlist() {
+            const savedWatchlist = localStorage.getItem('watchlist');
+            if (savedWatchlist) {
+                this.watchlist = JSON.parse(savedWatchlist);
+            }
+        },
+
+        renderDashboard() {
+            this.renderRecentEntries();
+            this.renderWatchlist();
+        },
+
+        renderRecentEntries() {
+            const recentEntries = document.getElementById('recentEntries');
+            recentEntries.innerHTML = '';
+            
+            const sortedEntries = this.entries.sort((a, b) => new Date(b.date) - new Date(a.date));
+            const recent = sortedEntries.slice(0, 5);
+            
+            recent.forEach(entry => {
+                const li = document.createElement('li');
+                li.className = 'flex items-center py-2';
+                li.innerHTML = `
+                    ${entry.posterPath ? `<img src="https://image.tmdb.org/t/p/w92${entry.posterPath}" alt="${entry.title}" class="w-12 h-16 mr-2">` : ''}
+                    <div>
+                        <p class="font-semibold">${entry.title}</p>
+                        <p class="text-gray-600">${entry.date}</p>
+                    </div>
+                `;
+                recentEntries.appendChild(li);
+            });
+        },
+
+        renderWatchlist() {
+            const watchlist = document.getElementById('watchlist');
+            watchlist.innerHTML = '';
+            
+            this.watchlist.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'flex items-center py-2';
+                li.innerHTML = `
+                    ${item.posterPath ? `<img src="https://image.tmdb.org/t/p/w92${item.posterPath}" alt="${item.title}" class="w-12 h-16 mr-2">` : ''}
+                    <div>
+                        <p class="font-semibold">${item.title}</p>
+                        <p class="text-gray-600">${item.release_date || item.first_air_date}</p>
+                    </div>
+                `;
+                watchlist.appendChild(li);
+            });
         }
     }
 }
 
-// Add this outside of the journalApp function
+// Global function for TMDB search (used in HTML)
+function searchTMDB(query) {
+    return Alpine.store('app').searchTMDB(query);
+}
+
+// Global functions for entry management (used in HTML)
+function toggleFavorite(index) {
+    return Alpine.store('app').toggleFavorite(index);
+}
+
+function deleteEntry(index) {
+    return Alpine.store('app').deleteEntry(index);
+}
+
+// Initialize Alpine.js store
 document.addEventListener('alpine:init', () => {
-    Alpine.data('journalApp', journalApp);
+    Alpine.store('app', app());
 });

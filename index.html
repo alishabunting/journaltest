@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Film & TV Journal</title>
+    <title>CineLog - Your Film & TV Journal</title>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
@@ -11,81 +11,162 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body class="bg-gray-100">
-    <div x-data="journalApp()" class="container mx-auto p-4">
-        <h1 class="text-4xl font-bold text-center mb-8 animate__animated animate__fadeIn">My Film & TV Journal</h1>
-        
+<body class="bg-gray-100 font-sans">
+    <div x-data="Alpine.store('app')" x-init="init()" x-cloak>
+        <nav class="bg-blue-600 text-white p-4">
+            <div class="container mx-auto flex justify-between items-center">
+                <h1 class="text-2xl font-bold">CineLog</h1>
+                <ul class="flex space-x-4">
+                    <li><a @click="changePage('dashboard')" class="cursor-pointer hover:text-blue-200">Dashboard</a></li>
+                    <li><a @click="changePage('addEntry')" class="cursor-pointer hover:text-blue-200">Add Entry</a></li>
+                    <li><a @click="changePage('browseEntries')" class="cursor-pointer hover:text-blue-200">Browse Entries</a></li>
+                    <li><a @click="changePage('statistics')" class="cursor-pointer hover:text-blue-200">Statistics</a></li>
+                    <li><a @click="changePage('profile')" class="cursor-pointer hover:text-blue-200">Profile</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <main class="container mx-auto mt-8 p-4">
+            <div x-show="currentPage === 'dashboard'" class="animate__animated animate__fadeIn">
+                <h2 class="text-3xl font-bold mb-4">Dashboard</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <h3 class="text-xl font-semibold mb-2">Recent Entries</h3>
+                        <ul id="recentEntries"></ul>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <h3 class="text-xl font-semibold mb-2">Quick Stats</h3>
+                        <p>Total Entries: <span x-text="totalEntries"></span></p>
+                        <p>Average Rating: <span x-text="averageRating.toFixed(1)"></span></p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <h3 class="text-xl font-semibold mb-2">Watchlist</h3>
+                        <ul id="watchlist"></ul>
+                    </div>
+                </div>
+            </div>
+
+            <div x-show="currentPage === 'addEntry'" class="animate__animated animate__fadeIn">
+                <h2 class="text-3xl font-bold mb-4">Add New Entry</h2>
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <div class="mb-4">
+                        <label for="entryType" class="block text-sm font-medium text-gray-700">Type</label>
+                        <select id="entryType" x-model="entryType" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                            <option value="movie">Movie</option>
+                            <option value="tvShow">TV Show</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label for="titleInput" class="block text-sm font-medium text-gray-700">Title</label>
+                        <input type="text" id="titleInput" x-model="title" @input="searchTMDB($event.target.value)" placeholder="Search for a movie or TV show" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                        <div id="autocompleteResults" class="mt-2"></div>
+                    </div>
+                    <div id="boxArt" class="mb-4"></div>
+                    <div class="mb-4">
+                        <label for="dateWatched" class="block text-sm font-medium text-gray-700">Date Watched</label>
+                        <input type="date" id="dateWatched" x-model="dateWatched" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                    </div>
+                    <div x-show="entryType === 'tvShow'" class="mb-4">
+                        <label for="season" class="block text-sm font-medium text-gray-700">Season</label>
+                        <input type="number" id="season" x-model="season" placeholder="Season number" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                    </div>
+                    <div class="mb-4">
+                        <label for="editor" class="block text-sm font-medium text-gray-700">Notes</label>
+                        <div id="editor" class="mt-1"></div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="rating" class="block text-sm font-medium text-gray-700">Rating</label>
+                        <input type="number" id="rating" x-model="rating" min="1" max="5" placeholder="Rating (1-5)" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                    </div>
+                    <div class="mb-4">
+                        <label for="tags" class="block text-sm font-medium text-gray-700">Tags</label>
+                        <input type="text" id="tags" x-model="tags" placeholder="Tags (comma-separated)" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                    </div>
+                    <button @click="addEntry()" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition">Add Entry</button>
+                </div>
+            </div>
+
+            <div x-show="currentPage === 'browseEntries'" class="animate__animated animate__fadeIn">
+                <h2 class="text-3xl font-bold mb-4">Browse Entries</h2>
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <div class="mb-4">
+                        <input x-model="searchTerm" type="text" placeholder="Search entries..." class="w-full p-2 border rounded">
+                    </div>
+                    <div class="mb-4">
+                        <select x-model="sortMethod" class="w-full p-2 border rounded">
+                            <option value="dateDesc">Date (Newest First)</option>
+                            <option value="dateAsc">Date (Oldest First)</option>
+                            <option value="ratingDesc">Rating (Highest First)</option>
+                            <option value="ratingAsc">Rating (Lowest First)</option>
+                            <option value="titleAsc">Title (A-Z)</option>
+                            <option value="titleDesc">Title (Z-A)</option>
+                        </select>
+                    </div>
+                    <div id="entriesList" class="space-y-4" x-html="renderEntries()"></div>
+                </div>
+            </div>
+
+            <div x-show="currentPage === 'statistics'" class="animate__animated animate__fadeIn">
+                <h2 class="text-3xl font-bold mb-4">Statistics</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <h3 class="text-xl font-semibold mb-2">Rating Distribution</h3>
+                        <canvas id="ratingChart"></canvas>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <h3 class="text-xl font-semibold mb-2">Top Tags</h3>
+                        <p x-text="topTags"></p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <h3 class="text-xl font-semibold mb-2">Entries Over Time</h3>
+                        <canvas id="timelineChart"></canvas>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <h3 class="text-xl font-semibold mb-2">Movies vs TV Shows</h3>
+                        <canvas id="typeChart"></canvas>
+                    </div>
+                </div>
+                <div x-init="initCharts()">
+                    <!-- Your existing chart canvases here -->
+                </div>
+            </div>
+
+            <div x-show="currentPage === 'profile'" class="animate__animated animate__fadeIn">
+                <h2 class="text-3xl font-bold mb-4">User Profile</h2>
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <div class="mb-4">
+                        <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+                        <input type="text" id="username" x-model="username" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                    </div>
+                    <div class="mb-4">
+                        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" id="email" x-model="email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                    </div>
+                    <button @click="saveProfile()" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition">Save Profile</button>
+                </div>
+            </div>
+        </main>
+
         <div id="notification" class="fixed top-4 right-4 p-4 rounded-lg text-white opacity-0 transition-opacity duration-300" :class="notificationClass"></div>
-        
-        <div class="bg-white rounded-lg shadow-md p-6 mb-8 animate__animated animate__fadeInUp">
-            <h2 class="text-2xl font-semibold mb-4">Add New Entry</h2>
-            <select x-model="entryType" class="w-full p-2 mb-4 border rounded" @change="toggleSeasonInput()">
-                <option value="movie">Movie</option>
-                <option value="tvShow">TV Show</option>
-            </select>
-            <input type="text" id="titleInput" x-model="title" @input="searchTMDB($event.target.value)" placeholder="Search for a movie or TV show" class="w-full p-2 mb-4 border rounded">
-            <div id="autocompleteResults" class="mt-2"></div>
-            <div id="boxArt" class="mb-4"></div>
-            <input x-model="dateWatched" type="date" class="w-full p-2 mb-4 border rounded">
-            <input x-show="entryType === 'tvShow'" x-model="season" type="number" placeholder="Season number" class="w-full p-2 mb-4 border rounded">
-            <div id="editor" class="mb-4"></div>
-            <input x-model="rating" type="number" min="1" max="5" placeholder="Rating (1-5)" class="w-full p-2 mb-4 border rounded">
-            <input x-model="tags" type="text" placeholder="Tags (comma-separated)" class="w-full p-2 mb-4 border rounded">
-            <button @click="addEntry()" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition">Add Entry</button>
-        </div>
-        
-        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 class="text-2xl font-semibold mb-4">Journal Entries</h2>
-            <input x-model="searchTerm" type="text" placeholder="Search entries..." class="w-full p-2 mb-4 border rounded">
-            <select x-model="sortMethod" class="w-full p-2 mb-4 border rounded">
-                <option value="dateDesc">Date (Newest First)</option>
-                <option value="dateAsc">Date (Oldest First)</option>
-                <option value="ratingDesc">Rating (Highest First)</option>
-                <option value="ratingAsc">Rating (Lowest First)</option>
-                <option value="titleAsc">Title (A-Z)</option>
-                <option value="titleDesc">Title (Z-A)</option>
-            </select>
-            <div id="entriesList" class="space-y-4"></div>
-        </div>
-        
-        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 class="text-2xl font-semibold mb-4">Statistics</h2>
-            <canvas id="ratingChart"></canvas>
-            <p class="mt-4">Total Entries: <span x-text="totalEntries"></span></p>
-            <p>Average Rating: <span x-text="averageRating.toFixed(1)"></span></p>
-            <p>Top Tags: <span x-text="topTags"></span></p>
-        </div>
     </div>
 
-    <script>
-    function journalApp() {
-        return {
-            entries: [],
-            entryType: "movie",
-            title: "",
-            dateWatched: "",
-            season: "",
-            rating: "",
-            tags: "",
-            searchTerm: "",
-            sortMethod: "dateDesc",
-            notificationClass: "",
-            totalEntries: 0,
-            averageRating: 0,
-            topTags: "",
-            
-            init() {
-                this.loadEntries();
-                this.renderEntries();
-                this.updateStatistics();
-                this.initQuill();
-                this.initChart();
-            },
-            
-            // ... rest of your methods ...
-        }
-    }
-    </script>
+    <template id="entry-template">
+        <div class="bg-gray-50 p-4 rounded-lg animate__animated animate__fadeIn">
+            <img x-bind:src="entry.posterPath ? `https://image.tmdb.org/t/p/w200${entry.posterPath}` : ''" x-bind:alt="entry.title" class="float-right ml-4 mb-4">
+            <h3 class="text-xl font-semibold" x-text="entry.title + (entry.entryType === 'tvShow' ? ` (Season ${entry.season})` : '')"></h3>
+            <p class="text-gray-600" x-text="'Date: ' + entry.date"></p>
+            <div class="mt-2" x-html="entry.notes"></div>
+            <p class="mt-2" x-text="'Rating: ' + '★'.repeat(entry.rating) + '☆'.repeat(5 - entry.rating)"></p>
+            <p class="mt-2">
+                Tags: 
+                <template x-for="tag in entry.tags">
+                    <span class="inline-block bg-blue-200 rounded-full px-3 py-1 text-sm font-semibold text-blue-700 mr-2" x-text="tag"></span>
+                </template>
+            </p>
+            <button @click="toggleFavorite(index)" class="mt-2 bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition" x-text="entry.favorite ? 'Remove from Favorites' : 'Add to Favorites'"></button>
+            <button @click="deleteEntry(index)" class="mt-2 ml-2 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition">Delete</button>
+        </div>
+    </template>
 
     <script src="script.js"></script>
 </body>
