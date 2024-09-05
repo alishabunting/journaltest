@@ -34,12 +34,19 @@ function app() {
             if (page === 'browseEntries') {
                 this.renderEntries();
             } else if (page === 'statistics') {
-                this.$nextTick(() => {
+                // Use setTimeout to ensure the DOM has updated
+                setTimeout(() => {
                     this.updateCharts();
-                });
+                }, 0);
             } else if (page === 'dashboard') {
                 this.renderDashboard();
             }
+        },
+
+        updateCharts() {
+            this.updateRatingChart();
+            this.updateTimelineChart();
+            this.updateTypeChart();
         },
 
         initQuill() {
