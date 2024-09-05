@@ -18,10 +18,12 @@ function journalApp() {
 
         init() {
             this.loadEntries();
-            this.renderEntries();
-            this.updateStatistics();
-            this.initQuill();
-            this.initChart();
+            this.$nextTick(() => {
+                this.renderEntries();
+                this.updateStatistics();
+                this.initQuill();
+                this.initChart();
+            });
         },
 
         initQuill() {
@@ -117,8 +119,8 @@ function journalApp() {
                     <div class="mt-2">${entry.notes}</div>
                     <p class="mt-2">Rating: ${'★'.repeat(entry.rating)}${'☆'.repeat(5 - entry.rating)}</p>
                     <p class="mt-2">Tags: ${entry.tags.map(tag => `<span class="inline-block bg-blue-200 rounded-full px-3 py-1 text-sm font-semibold text-blue-700 mr-2">${tag}</span>`).join('')}</p>
-                    <button onclick="journalApp().toggleFavorite(${index})" class="mt-2 bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition">${entry.favorite ? 'Remove from Favorites' : 'Add to Favorites'}</button>
-                    <button onclick="journalApp().deleteEntry(${index})" class="mt-2 ml-2 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition">Delete</button>
+                    <button @click="toggleFavorite(${index})" class="mt-2 bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition">${entry.favorite ? 'Remove from Favorites' : 'Add to Favorites'}</button>
+                    <button @click="deleteEntry(${index})" class="mt-2 ml-2 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition">Delete</button>
                 `;
                 entriesList.appendChild(entryElement);
             });
@@ -161,8 +163,10 @@ function journalApp() {
 
             // Update chart
             const chart = Chart.getChart('ratingChart');
-            chart.data.datasets[0].data = ratingCounts;
-            chart.update();
+            if (chart) {
+                chart.data.datasets[0].data = ratingCounts;
+                chart.update();
+            }
         },
 
         showNotification(message, type) {

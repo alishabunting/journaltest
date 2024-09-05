@@ -55,6 +55,36 @@
         </div>
     </div>
 
+    <script>
+    function journalApp() {
+        return {
+            entries: [],
+            entryType: "movie",
+            title: "",
+            dateWatched: "",
+            season: "",
+            rating: "",
+            tags: "",
+            searchTerm: "",
+            sortMethod: "dateDesc",
+            notificationClass: "",
+            totalEntries: 0,
+            averageRating: 0,
+            topTags: "",
+            
+            init() {
+                this.loadEntries();
+                this.renderEntries();
+                this.updateStatistics();
+                this.initQuill();
+                this.initChart();
+            },
+            
+            // ... rest of your methods ...
+        }
+    }
+    </script>
+
     <script src="script.js"></script>
 </body>
 </html>
