@@ -34,7 +34,9 @@ function app() {
             if (page === 'browseEntries') {
                 this.renderEntries();
             } else if (page === 'statistics') {
-                this.updateCharts();
+                this.$nextTick(() => {
+                    this.updateCharts();
+                });
             } else if (page === 'dashboard') {
                 this.renderDashboard();
             }
