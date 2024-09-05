@@ -12,22 +12,22 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body class="bg-gray-100 font-sans">
-    <div x-data="Alpine.store('app')" x-init="init()" x-cloak>
+    <div x-data x-init="$store.app.init()" x-cloak>
         <nav class="bg-blue-600 text-white p-4">
             <div class="container mx-auto flex justify-between items-center">
                 <h1 class="text-2xl font-bold">CineLog</h1>
                 <ul class="flex space-x-4">
-                    <li><a @click="changePage('dashboard')" class="cursor-pointer hover:text-blue-200">Dashboard</a></li>
-                    <li><a @click="changePage('addEntry')" class="cursor-pointer hover:text-blue-200">Add Entry</a></li>
-                    <li><a @click="changePage('browseEntries')" class="cursor-pointer hover:text-blue-200">Browse Entries</a></li>
-                    <li><a @click="changePage('statistics')" class="cursor-pointer hover:text-blue-200">Statistics</a></li>
-                    <li><a @click="changePage('profile')" class="cursor-pointer hover:text-blue-200">Profile</a></li>
+                    <li><a @click="$store.app.changePage('dashboard')" class="cursor-pointer hover:text-blue-200">Dashboard</a></li>
+                    <li><a @click="$store.app.changePage('addEntry')" class="cursor-pointer hover:text-blue-200">Add Entry</a></li>
+                    <li><a @click="$store.app.changePage('browseEntries')" class="cursor-pointer hover:text-blue-200">Browse Entries</a></li>
+                    <li><a @click="$store.app.changePage('statistics')" class="cursor-pointer hover:text-blue-200">Statistics</a></li>
+                    <li><a @click="$store.app.changePage('profile')" class="cursor-pointer hover:text-blue-200">Profile</a></li>
                 </ul>
             </div>
         </nav>
 
         <main class="container mx-auto mt-8 p-4">
-            <div x-show="currentPage === 'dashboard'" class="animate__animated animate__fadeIn">
+            <div x-show="$store.app.currentPage === 'dashboard'" class="animate__animated animate__fadeIn">
                 <h2 class="text-3xl font-bold mb-4">Dashboard</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div class="bg-white p-4 rounded-lg shadow">
@@ -36,8 +36,8 @@
                     </div>
                     <div class="bg-white p-4 rounded-lg shadow">
                         <h3 class="text-xl font-semibold mb-2">Quick Stats</h3>
-                        <p>Total Entries: <span x-text="totalEntries"></span></p>
-                        <p>Average Rating: <span x-text="averageRating.toFixed(1)"></span></p>
+                        <p>Total Entries: <span x-text="$store.app.totalEntries"></span></p>
+                        <p>Average Rating: <span x-text="$store.app.averageRating.toFixed(1)"></span></p>
                     </div>
                     <div class="bg-white p-4 rounded-lg shadow">
                         <h3 class="text-xl font-semibold mb-2">Watchlist</h3>
@@ -46,29 +46,29 @@
                 </div>
             </div>
 
-            <div x-show="currentPage === 'addEntry'" class="animate__animated animate__fadeIn">
+            <div x-show="$store.app.currentPage === 'addEntry'" class="animate__animated animate__fadeIn">
                 <h2 class="text-3xl font-bold mb-4">Add New Entry</h2>
                 <div class="bg-white p-6 rounded-lg shadow">
                     <div class="mb-4">
                         <label for="entryType" class="block text-sm font-medium text-gray-700">Type</label>
-                        <select id="entryType" x-model="entryType" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                        <select id="entryType" x-model="$store.app.entryType" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                             <option value="movie">Movie</option>
                             <option value="tvShow">TV Show</option>
                         </select>
                     </div>
                     <div class="mb-4">
                         <label for="titleInput" class="block text-sm font-medium text-gray-700">Title</label>
-                        <input type="text" id="titleInput" x-model="title" @input="searchTMDB($event.target.value)" placeholder="Search for a movie or TV show" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                        <input type="text" id="titleInput" x-model="$store.app.title" @input="$store.app.searchTMDB($event.target.value)" placeholder="Search for a movie or TV show" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                         <div id="autocompleteResults" class="mt-2"></div>
                     </div>
                     <div id="boxArt" class="mb-4"></div>
                     <div class="mb-4">
                         <label for="dateWatched" class="block text-sm font-medium text-gray-700">Date Watched</label>
-                        <input type="date" id="dateWatched" x-model="dateWatched" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                        <input type="date" id="dateWatched" x-model="$store.app.dateWatched" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                     </div>
-                    <div x-show="entryType === 'tvShow'" class="mb-4">
+                    <div x-show="$store.app.entryType === 'tvShow'" class="mb-4">
                         <label for="season" class="block text-sm font-medium text-gray-700">Season</label>
-                        <input type="number" id="season" x-model="season" placeholder="Season number" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                        <input type="number" id="season" x-model="$store.app.season" placeholder="Season number" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                     </div>
                     <div class="mb-4">
                         <label for="editor" class="block text-sm font-medium text-gray-700">Notes</label>
@@ -76,24 +76,24 @@
                     </div>
                     <div class="mb-4">
                         <label for="rating" class="block text-sm font-medium text-gray-700">Rating</label>
-                        <input type="number" id="rating" x-model="rating" min="1" max="5" placeholder="Rating (1-5)" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                        <input type="number" id="rating" x-model="$store.app.rating" min="1" max="5" placeholder="Rating (1-5)" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                     </div>
                     <div class="mb-4">
                         <label for="tags" class="block text-sm font-medium text-gray-700">Tags</label>
-                        <input type="text" id="tags" x-model="tags" placeholder="Tags (comma-separated)" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                        <input type="text" id="tags" x-model="$store.app.tags" placeholder="Tags (comma-separated)" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                     </div>
-                    <button @click="addEntry()" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition">Add Entry</button>
+                    <button @click="$store.app.addEntry()" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition">Add Entry</button>
                 </div>
             </div>
 
-            <div x-show="currentPage === 'browseEntries'" class="animate__animated animate__fadeIn">
+            <div x-show="$store.app.currentPage === 'browseEntries'" class="animate__animated animate__fadeIn">
                 <h2 class="text-3xl font-bold mb-4">Browse Entries</h2>
                 <div class="bg-white p-6 rounded-lg shadow">
                     <div class="mb-4">
-                        <input x-model="searchTerm" type="text" placeholder="Search entries..." class="w-full p-2 border rounded">
+                        <input x-model="$store.app.searchTerm" type="text" placeholder="Search entries..." class="w-full p-2 border rounded">
                     </div>
                     <div class="mb-4">
-                        <select x-model="sortMethod" class="w-full p-2 border rounded">
+                        <select x-model="$store.app.sortMethod" class="w-full p-2 border rounded">
                             <option value="dateDesc">Date (Newest First)</option>
                             <option value="dateAsc">Date (Oldest First)</option>
                             <option value="ratingDesc">Rating (Highest First)</option>
@@ -102,11 +102,11 @@
                             <option value="titleDesc">Title (Z-A)</option>
                         </select>
                     </div>
-                    <div id="entriesList" class="space-y-4" x-html="renderEntries()"></div>
+                    <div id="entriesList" class="space-y-4" x-init="$store.app.renderEntries()"></div>
                 </div>
             </div>
 
-            <div x-show="currentPage === 'statistics'" class="animate__animated animate__fadeIn">
+            <div x-show="$store.app.currentPage === 'statistics'" class="animate__animated animate__fadeIn">
                 <h2 class="text-3xl font-bold mb-4">Statistics</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="bg-white p-4 rounded-lg shadow">
@@ -115,7 +115,7 @@
                     </div>
                     <div class="bg-white p-4 rounded-lg shadow">
                         <h3 class="text-xl font-semibold mb-2">Top Tags</h3>
-                        <p x-text="topTags"></p>
+                        <p x-text="$store.app.topTags"></p>
                     </div>
                     <div class="bg-white p-4 rounded-lg shadow">
                         <h3 class="text-xl font-semibold mb-2">Entries Over Time</h3>
@@ -126,28 +126,25 @@
                         <canvas id="typeChart"></canvas>
                     </div>
                 </div>
-                <div x-init="initCharts()">
-                    <!-- Your existing chart canvases here -->
-                </div>
             </div>
 
-            <div x-show="currentPage === 'profile'" class="animate__animated animate__fadeIn">
+            <div x-show="$store.app.currentPage === 'profile'" class="animate__animated animate__fadeIn">
                 <h2 class="text-3xl font-bold mb-4">User Profile</h2>
                 <div class="bg-white p-6 rounded-lg shadow">
                     <div class="mb-4">
                         <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
-                        <input type="text" id="username" x-model="username" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                        <input type="text" id="username" x-model="$store.app.username" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                     </div>
                     <div class="mb-4">
                         <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                        <input type="email" id="email" x-model="email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                        <input type="email" id="email" x-model="$store.app.email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                     </div>
-                    <button @click="saveProfile()" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition">Save Profile</button>
+                    <button @click="$store.app.saveProfile()" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition">Save Profile</button>
                 </div>
             </div>
         </main>
 
-        <div id="notification" class="fixed top-4 right-4 p-4 rounded-lg text-white opacity-0 transition-opacity duration-300" :class="notificationClass"></div>
+        <div id="notification" class="fixed top-4 right-4 p-4 rounded-lg text-white opacity-0 transition-opacity duration-300" :class="$store.app.notificationClass"></div>
     </div>
 
     <template id="entry-template">
@@ -163,8 +160,8 @@
                     <span class="inline-block bg-blue-200 rounded-full px-3 py-1 text-sm font-semibold text-blue-700 mr-2" x-text="tag"></span>
                 </template>
             </p>
-            <button @click="toggleFavorite(index)" class="mt-2 bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition" x-text="entry.favorite ? 'Remove from Favorites' : 'Add to Favorites'"></button>
-            <button @click="deleteEntry(index)" class="mt-2 ml-2 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition">Delete</button>
+            <button @click="$store.app.toggleFavorite(index)" class="mt-2 bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition" x-text="entry.favorite ? 'Remove from Favorites' : 'Add to Favorites'"></button>
+            <button @click="$store.app.deleteEntry(index)" class="mt-2 ml-2 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition">Delete</button>
         </div>
     </template>
 

@@ -25,21 +25,19 @@ function app() {
             this.loadEntries();
             this.loadProfile();
             this.loadWatchlist();
-            this.$nextTick(() => {
-                this.renderDashboard();
-                this.initQuill();
-                this.initCharts();
-            });
+            this.renderDashboard();
+            this.initQuill();
+            this.initCharts();
         },
 
         changePage(page) {
             this.currentPage = page;
             if (page === 'browseEntries') {
-                this.$nextTick(() => this.renderEntries());
+                this.renderEntries();
             } else if (page === 'statistics') {
-                this.$nextTick(() => this.updateCharts());
+                this.updateCharts();
             } else if (page === 'dashboard') {
-                this.$nextTick(() => this.renderDashboard());
+                this.renderDashboard();
             }
         },
 
@@ -216,8 +214,8 @@ function app() {
                     <div class="mt-2">${entry.notes}</div>
                     <p class="mt-2">Rating: ${'★'.repeat(entry.rating)}${'☆'.repeat(5 - entry.rating)}</p>
                     <p class="mt-2">Tags: ${entry.tags.map(tag => `<span class="inline-block bg-blue-200 rounded-full px-3 py-1 text-sm font-semibold text-blue-700 mr-2">${tag}</span>`).join('')}</p>
-                    <button @click="toggleFavorite(${index})" class="mt-2 bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition">${entry.favorite ? 'Remove from Favorites' : 'Add to Favorites'}</button>
-                    <button @click="deleteEntry(${index})" class="mt-2 ml-2 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition">Delete</button>
+                    <button onclick="toggleFavorite(${index})" class="mt-2 bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition">${entry.favorite ? 'Remove from Favorites' : 'Add to Favorites'}</button>
+                    <button onclick="deleteEntry(${index})" class="mt-2 ml-2 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition">Delete</button>
                 `;
                 entriesList.appendChild(entryElement);
             });
@@ -420,4 +418,9 @@ function deleteEntry(index) {
 // Initialize Alpine.js store
 document.addEventListener('alpine:init', () => {
     Alpine.store('app', app());
+});
+
+// Run init after the DOM is fully loaded
+document.addEventListener('DOMContentLoaded', () => {
+    Alpine.store('app').init();
 });
