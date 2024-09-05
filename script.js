@@ -30,17 +30,20 @@ function app() {
         },
 
         changePage(page) {
-            this.currentPage = page;
-            if (page === 'browseEntries') {
-                this.renderEntries();
-            } else if (page === 'statistics') {
-                // Use setTimeout to ensure the DOM has updated
-                setTimeout(() => {
-                    this.updateCharts();
-                }, 0);
-            } else if (page === 'dashboard') {
-                this.renderDashboard();
-            }
+            gsap.to(`.page-${this.currentPage}`, { opacity: 0, duration: 0.3, onComplete: () => {
+                this.currentPage = page;
+                gsap.fromTo(`.page-${page}`, { opacity: 0 }, { opacity: 1, duration: 0.3 });
+                
+                if (page === 'browseEntries') {
+                    this.renderEntries();
+                } else if (page === 'statistics') {
+                    setTimeout(() => {
+                        this.updateCharts();
+                    }, 0);
+                } else if (page === 'dashboard') {
+                    this.renderDashboard();
+                }
+            }});
         },
 
         updateCharts() {

@@ -28,20 +28,20 @@
 
         <main class="container mx-auto mt-8 p-4">
             <div x-show="$store.app.currentPage === 'dashboard'" class="animate__animated animate__fadeIn">
-                <h2 class="text-3xl font-bold mb-4">Dashboard</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div class="bg-white p-4 rounded-lg shadow">
-                        <h3 class="text-xl font-semibold mb-2">Recent Entries</h3>
-                        <ul id="recentEntries"></ul>
+                <h2 class="text-4xl font-display font-bold mb-6">Dashboard</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-lg paper-texture">
+                        <h3 class="text-2xl font-handwritten mb-4">Recent Entries</h3>
+                        <ul id="recentEntries" class="space-y-2"></ul>
                     </div>
-                    <div class="bg-white p-4 rounded-lg shadow">
-                        <h3 class="text-xl font-semibold mb-2">Quick Stats</h3>
-                        <p>Total Entries: <span x-text="$store.app.totalEntries"></span></p>
-                        <p>Average Rating: <span x-text="$store.app.averageRating.toFixed(1)"></span></p>
+                    <div class="bg-white p-6 rounded-lg shadow-lg paper-texture">
+                        <h3 class="text-2xl font-handwritten mb-4">Quick Stats</h3>
+                        <p class="text-lg">Total Entries: <span x-text="$store.app.totalEntries" class="font-bold text-primary"></span></p>
+                        <p class="text-lg">Average Rating: <span x-text="$store.app.averageRating.toFixed(1)" class="font-bold text-primary"></span></p>
                     </div>
-                    <div class="bg-white p-4 rounded-lg shadow">
-                        <h3 class="text-xl font-semibold mb-2">Watchlist</h3>
-                        <ul id="watchlist"></ul>
+                    <div class="bg-white p-6 rounded-lg shadow-lg paper-texture">
+                        <h3 class="text-2xl font-handwritten mb-4">Watchlist</h3>
+                        <ul id="watchlist" class="space-y-2"></ul>
                     </div>
                 </div>
             </div>
