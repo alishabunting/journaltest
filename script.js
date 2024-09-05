@@ -15,6 +15,7 @@ function journalApp() {
         totalEntries: 0,
         averageRating: 0,
         topTags: '',
+        selectedItem: null,
 
         init() {
             this.loadEntries();
@@ -60,6 +61,39 @@ function journalApp() {
             seasonInput.style.display = this.entryType === 'tvShow' ? 'block' : 'none';
         },
 
+        async searchTMDB(query) {
+            if (query.length < 3) return;
+            
+            const type = this.entryType === 'movie' ? 'movie' : 'tv';
+            const response = await fetch(`/api/search?query=${encodeURIComponent(query)}&type=${type}`);
+            const results = await response.json();
+            
+            const autocompleteResults = document.getElementById('autocompleteResults');
+            autocompleteResults.innerHTML = '';
+            
+            results.slice(0, 5).forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'p-2 hover:bg-gray-100 cursor-pointer';
+                div.textContent = item.title || item.name;
+                div.onclick = () => this.selectItem(item);
+                autocompleteResults.appendChild(div);
+            });
+        },
+
+        selectItem(item) {
+            this.selectedItem = item;
+            this.title = item.title || item.name;
+            document.getElementById('titleInput').value = this.title;
+            document.getElementById('autocompleteResults').innerHTML = '';
+            
+            const boxArt = document.getElementById('boxArt');
+            if (item.poster_path) {
+                boxArt.innerHTML = `<img src="https://image.tmdb.org/t/p/w200${item.poster_path}" alt="${this.title}" class="mt-2">`;
+            } else {
+                boxArt.innerHTML = '';
+            }
+        },
+
         addEntry() {
             if (this.title && this.dateWatched && this.rating) {
                 const entry = {
@@ -70,7 +104,9 @@ function journalApp() {
                     notes: quill.root.innerHTML,
                     rating: parseInt(this.rating),
                     tags: this.tags.split(',').map(tag => tag.trim()),
-                    favorite: false
+                    favorite: false,
+                    tmdbId: this.selectedItem ? this.selectedItem.id : null,
+                    posterPath: this.selectedItem ? this.selectedItem.poster_path : null
                 };
                 this.entries.push(entry);
                 this.saveEntries();
@@ -114,6 +150,7 @@ function journalApp() {
                 const entryElement = document.createElement('div');
                 entryElement.className = 'bg-gray-50 p-4 rounded-lg animate__animated animate__fadeIn';
                 entryElement.innerHTML = `
+                    ${entry.posterPath ? `<img src="https://image.tmdb.org/t/p/w200${entry.posterPath}" alt="${entry.title}" class="float-right ml-4 mb-4">` : ''}
                     <h3 class="text-xl font-semibold">${entry.title} ${entry.entryType === 'tvShow' ? `(Season ${entry.season})` : ''}</h3>
                     <p class="text-gray-600">Date: ${entry.date}</p>
                     <div class="mt-2">${entry.notes}</div>
@@ -199,3 +236,8 @@ function journalApp() {
         }
     }
 }
+
+// Add this outside of the journalApp function
+document.addEventListener('alpine:init', () => {
+    Alpine.data('journalApp', journalApp);
+});

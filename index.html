@@ -23,7 +23,9 @@
                 <option value="movie">Movie</option>
                 <option value="tvShow">TV Show</option>
             </select>
-            <input x-model="title" type="text" placeholder="Title" class="w-full p-2 mb-4 border rounded">
+            <input type="text" id="titleInput" x-model="title" @input="searchTMDB($event.target.value)" placeholder="Search for a movie or TV show" class="w-full p-2 mb-4 border rounded">
+            <div id="autocompleteResults" class="mt-2"></div>
+            <div id="boxArt" class="mb-4"></div>
             <input x-model="dateWatched" type="date" class="w-full p-2 mb-4 border rounded">
             <input x-show="entryType === 'tvShow'" x-model="season" type="number" placeholder="Season number" class="w-full p-2 mb-4 border rounded">
             <div id="editor" class="mb-4"></div>
