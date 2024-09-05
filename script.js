@@ -27,7 +27,6 @@ function app() {
             this.loadWatchlist();
             this.renderDashboard();
             this.initQuill();
-            this.initCharts();
         },
 
         changePage(page) {
@@ -44,73 +43,6 @@ function app() {
         initQuill() {
             quill = new Quill('#editor', {
                 theme: 'snow'
-            });
-        },
-
-        initCharts() {
-            this.initRatingChart();
-            this.initTimelineChart();
-            this.initTypeChart();
-        },
-
-        initRatingChart() {
-            const ctx = document.getElementById('ratingChart').getContext('2d');
-            this.ratingChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
-                    datasets: [{
-                        label: 'Number of Entries',
-                        data: [0, 0, 0, 0, 0],
-                        backgroundColor: 'rgba(75, 192, 192, 0.6)'
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            stepSize: 1
-                        }
-                    }
-                }
-            });
-        },
-
-        initTimelineChart() {
-            const ctx = document.getElementById('timelineChart').getContext('2d');
-            this.timelineChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: 'Entries Over Time',
-                        data: [],
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        tension: 0.1
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            stepSize: 1
-                        }
-                    }
-                }
-            });
-        },
-
-        initTypeChart() {
-            const ctx = document.getElementById('typeChart').getContext('2d');
-            this.typeChart = new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: ['Movies', 'TV Shows'],
-                    datasets: [{
-                        data: [0, 0],
-                        backgroundColor: ['rgba(255, 99, 132, 0.6)', 'rgba(54, 162, 235, 0.6)']
-                    }]
-                }
             });
         },
 
@@ -263,10 +195,29 @@ function app() {
         },
 
         updateRatingChart(ratingCounts) {
+            const ctx = document.getElementById('ratingChart').getContext('2d');
             if (this.ratingChart) {
-                this.ratingChart.data.datasets[0].data = ratingCounts;
-                this.ratingChart.update();
+                this.ratingChart.destroy();
             }
+            this.ratingChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
+                    datasets: [{
+                        label: 'Number of Entries',
+                        data: ratingCounts,
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)'
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            stepSize: 1
+                        }
+                    }
+                }
+            });
         },
 
         updateTimelineChart() {
@@ -279,11 +230,30 @@ function app() {
             const labels = Object.keys(entriesByDate).sort();
             const data = labels.map(date => entriesByDate[date]);
 
+            const ctx = document.getElementById('timelineChart').getContext('2d');
             if (this.timelineChart) {
-                this.timelineChart.data.labels = labels;
-                this.timelineChart.data.datasets[0].data = data;
-                this.timelineChart.update();
+                this.timelineChart.destroy();
             }
+            this.timelineChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Entries Over Time',
+                        data: data,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            stepSize: 1
+                        }
+                    }
+                }
+            });
         },
 
         updateTypeChart() {
@@ -292,10 +262,20 @@ function app() {
                 return acc;
             }, {});
 
+            const ctx = document.getElementById('typeChart').getContext('2d');
             if (this.typeChart) {
-                this.typeChart.data.datasets[0].data = [typeCounts.movie || 0, typeCounts.tvShow || 0];
-                this.typeChart.update();
+                this.typeChart.destroy();
             }
+            this.typeChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Movies', 'TV Shows'],
+                    datasets: [{
+                        data: [typeCounts.movie || 0, typeCounts.tvShow || 0],
+                        backgroundColor: ['rgba(255, 99, 132, 0.6)', 'rgba(54, 162, 235, 0.6)']
+                    }]
+                }
+            });
         },
 
         showNotification(message, type) {
