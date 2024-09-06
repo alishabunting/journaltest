@@ -193,13 +193,17 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
 
-            const apiKey = 'YOUR_TMDB_API_KEY'; // Replace with your actual TMDB API key
-            const url = `https://api.themoviedb.org/3/search/${this.entryType === 'movie' ? 'movie' : 'tv'}?api_key=${apiKey}&query=${encodeURIComponent(query)}`;
+            const url = `/api/search?query=${encodeURIComponent(query)}&type=${this.entryType === 'movie' ? 'movie' : 'tv'}`;
 
             fetch(url)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(data => {
-                    this.tmdbResults = data.results.slice(0, 5); // Limit to 5 results
+                    this.tmdbResults = data.slice(0, 5); // Limit to 5 results
                     this.renderTMDBResults();
                 })
                 .catch(error => {

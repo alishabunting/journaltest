@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const fetch = require('node-fetch');
 const app = express();
 const port = 3000;
 
@@ -16,9 +17,13 @@ app.get('/api/search', async (req, res) => {
   
   try {
     const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
     const data = await response.json();
     res.json(data.results);
   } catch (error) {
+    console.error('Error fetching TMDB data:', error);
     res.status(500).json({ error: 'An error occurred while fetching data' });
   }
 });
