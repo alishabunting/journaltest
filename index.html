@@ -7,14 +7,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&family=Caveat&display=swap" rel="stylesheet">
     <link href="styles.css" rel="stylesheet">
     <link href="custom.css" rel="stylesheet">
+    <!-- Add Alpine.js -->
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <!-- Add GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
 </head>
 <body class="bg-background text-text font-sans">
-    <div x-data x-init="$store.app.init()" x-cloak>
+    <div x-data x-init="$store.app.init()">
         <nav class="bg-primary text-white p-4">
             <div class="container mx-auto flex justify-between items-center">
                 <h1 class="text-3xl font-display font-bold">CineLog</h1>
