@@ -1,16 +1,8 @@
 let quill;
 
 document.addEventListener('DOMContentLoaded', () => {
-    initQuill(); // Initialize Quill when the DOM is fully loaded
+    // The rest of your DOMContentLoaded code...
 });
-
-function initQuill() {
-    if (!quill) { // Check if quill is already initialized
-        quill = new Quill('#editor', {
-            theme: 'snow'
-        });
-    }
-}
 
 document.addEventListener('alpine:init', () => {
     Alpine.store('app', {
@@ -169,10 +161,18 @@ document.addEventListener('alpine:init', () => {
         },
 
         initQuill() {
-            // Initialize Quill editor
-            quill = new Quill('#editor', {
-                theme: 'snow'
-            });
+            if (!quill) {
+                quill = new Quill('#editor', {
+                    theme: 'snow',
+                    modules: {
+                        toolbar: [
+                            [{ 'header': [1, 2, false] }],
+                            ['bold', 'italic', 'underline'],
+                            ['image', 'code-block']
+                        ]
+                    }
+                });
+            }
         },
 
         updateCharts() {
