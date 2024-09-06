@@ -320,7 +320,7 @@ document.addEventListener('alpine:init', () => {
                 dateWatched: this.dateWatched,
                 season: this.season,
                 rating: this.rating,
-                tags: this.tags,
+                tags: this.tags || '',
                 notes: quill.root.innerHTML
             };
             this.entries.push(newEntry);
@@ -344,12 +344,14 @@ document.addEventListener('alpine:init', () => {
         calculateTopTags() {
             const tagCounts = {};
             this.entries.forEach(entry => {
-                entry.tags.split(',').forEach(tag => {
-                    tag = tag.trim();
-                    if (tag) {
-                        tagCounts[tag] = (tagCounts[tag] || 0) + 1;
-                    }
-                });
+                if (typeof entry.tags === 'string') {
+                    entry.tags.split(',').forEach(tag => {
+                        tag = tag.trim();
+                        if (tag) {
+                            tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+                        }
+                    });
+                }
             });
             this.topTags = Object.entries(tagCounts)
                 .sort((a, b) => b[1] - a[1])
