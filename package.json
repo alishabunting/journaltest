@@ -13,7 +13,6 @@
         "autoprefixer": "^10.x.x",
         "express": "^4.17.1",
         "gsap": "^3.12.5",
-        "node-fetch": "^3.2.0",
         "postcss": "^8.x.x",
         "tailwindcss": "^3.x.x"
     }
