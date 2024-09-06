@@ -1,5 +1,3 @@
-import { gsap } from "gsap";
-
 let quill;
 
 document.addEventListener('alpine:init', () => {
@@ -15,7 +13,6 @@ document.addEventListener('alpine:init', () => {
         tags: '',
         searchTerm: '',
         sortMethod: 'dateDesc',
-        notificationClass: '',
         totalEntries: 0,
         averageRating: 0,
         topTags: '',
@@ -23,6 +20,23 @@ document.addEventListener('alpine:init', () => {
         username: '',
         email: '',
         watchlist: [],
+        notificationMessage: '',
+
+        showNotification(message, type) {
+            this.notificationClass = `fixed top-4 right-4 p-4 rounded-lg text-white opacity-100 transition-opacity duration-300 ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            this.notificationMessage = message;
+            setTimeout(() => {
+                this.notificationClass = '';
+            }, 3000);
+        },
+
+        // Add any other properties that you're using in your templates here
+        // For example:
+        ratingChart: null,
+        timelineChart: null,
+        typeChart: null,
 
         init() {
             this.loadEntries();
@@ -37,22 +51,27 @@ document.addEventListener('alpine:init', () => {
             const newPageElement = document.querySelector(`.page-${page}`);
 
             if (currentPageElement && newPageElement) {
-                this.gsap.to(currentPageElement, { opacity: 0, duration: 0.3, onComplete: () => {
-                    currentPageElement.style.display = 'none';
-                    this.currentPage = page;
-                    newPageElement.style.display = 'block';
-                    this.gsap.fromTo(newPageElement, { opacity: 0 }, { opacity: 1, duration: 0.3 });
-                    
-                    if (page === 'browseEntries') {
-                        this.renderEntries();
-                    } else if (page === 'statistics') {
-                        setTimeout(() => {
-                            this.updateCharts();
-                        }, 0);
-                    } else if (page === 'dashboard') {
-                        this.renderDashboard();
+                gsap.to(currentPageElement, { 
+                    opacity: 0, 
+                    duration: 0.3, 
+                    onComplete: () => {
+                        this.currentPage = page;
+                        gsap.fromTo(newPageElement, 
+                            { opacity: 0 }, 
+                            { opacity: 1, duration: 0.3 }
+                        );
+                        
+                        if (page === 'browseEntries') {
+                            this.renderEntries();
+                        } else if (page === 'statistics') {
+                            setTimeout(() => {
+                                this.updateCharts();
+                            }, 0);
+                        } else if (page === 'dashboard') {
+                            this.renderDashboard();
+                        }
                     }
-                }});
+                });
             } else {
                 console.error(`Page elements not found for ${this.currentPage} or ${page}`);
             }
@@ -300,15 +319,6 @@ document.addEventListener('alpine:init', () => {
                     }]
                 }
             });
-        },
-
-        showNotification(message, type) {
-            const notification = document.getElementById('notification');
-            notification.textContent = message;
-            notification.className = `fixed top-4 right-4 p-4 rounded-lg text-white opacity-100 transition-opacity duration-300 ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
-            setTimeout(() => {
-                notification.className = notification.className.replace('opacity-100', 'opacity-0');
-            }, 3000);
         },
 
         clearInputs() {

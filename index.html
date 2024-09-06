@@ -146,9 +146,7 @@
             </div>
         </main>
 
-        <div id="notification" :class="$store.app.notificationClass">
-            <!-- Notification content -->
-        </div>
+        <div id="notification" x-text="$store.app.notificationMessage" :class="$store.app.notificationClass"></div>
     </div>
 
     <template id="entry-template">
@@ -172,4 +170,5 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
