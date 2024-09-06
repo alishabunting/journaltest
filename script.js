@@ -25,6 +25,8 @@ document.addEventListener('alpine:init', () => {
         ratingChart: null,
         timelineChart: null,
         typeChart: null,
+        tmdbResults: [],
+        selectedTMDBItem: null,
 
         init() {
             this.loadEntries();
@@ -182,6 +184,58 @@ document.addEventListener('alpine:init', () => {
                 this.averageRating = sum / this.entries.length;
             } else {
                 this.averageRating = 0;
+            }
+        },
+
+        searchTMDB(query) {
+            if (query.length < 3) {
+                this.tmdbResults = [];
+                return;
+            }
+
+            const apiKey = 'YOUR_TMDB_API_KEY'; // Replace with your actual TMDB API key
+            const url = `https://api.themoviedb.org/3/search/${this.entryType === 'movie' ? 'movie' : 'tv'}?api_key=${apiKey}&query=${encodeURIComponent(query)}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    this.tmdbResults = data.results.slice(0, 5); // Limit to 5 results
+                    this.renderTMDBResults();
+                })
+                .catch(error => {
+                    console.error('Error fetching TMDB data:', error);
+                    this.showNotification('Error fetching movie/TV show data', 'error');
+                });
+        },
+
+        renderTMDBResults() {
+            const resultsContainer = document.getElementById('autocompleteResults');
+            resultsContainer.innerHTML = '';
+
+            this.tmdbResults.forEach(item => {
+                const resultElement = document.createElement('div');
+                resultElement.className = 'p-2 hover:bg-gray-100 cursor-pointer';
+                resultElement.textContent = item.title || item.name;
+                resultElement.addEventListener('click', () => this.selectTMDBItem(item));
+                resultsContainer.appendChild(resultElement);
+            });
+        },
+
+        selectTMDBItem(item) {
+            this.selectedTMDBItem = item;
+            this.title = item.title || item.name;
+            document.getElementById('titleInput').value = this.title;
+            document.getElementById('autocompleteResults').innerHTML = '';
+            this.renderBoxArt();
+        },
+
+        renderBoxArt() {
+            const boxArtContainer = document.getElementById('boxArt');
+            if (this.selectedTMDBItem && this.selectedTMDBItem.poster_path) {
+                const imgUrl = `https://image.tmdb.org/t/p/w200${this.selectedTMDBItem.poster_path}`;
+                boxArtContainer.innerHTML = `<img src="${imgUrl}" alt="${this.title} Poster" class="w-32 h-auto">`;
+            } else {
+                boxArtContainer.innerHTML = '';
             }
         },
 
