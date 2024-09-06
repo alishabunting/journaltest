@@ -1,5 +1,17 @@
 let quill;
 
+document.addEventListener('DOMContentLoaded', () => {
+    initQuill(); // Initialize Quill when the DOM is fully loaded
+});
+
+function initQuill() {
+    if (!quill) { // Check if quill is already initialized
+        quill = new Quill('#editor', {
+            theme: 'snow'
+        });
+    }
+}
+
 document.addEventListener('alpine:init', () => {
     Alpine.store('app', {
         gsap: window.gsap,
