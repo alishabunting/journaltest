@@ -2,8 +2,9 @@ import { gsap } from "gsap";
 
 let quill;
 
-function app() {
-    return {
+document.addEventListener('alpine:init', () => {
+    Alpine.store('app', {
+        gsap: gsap,
         currentPage: 'dashboard',
         entries: [],
         entryType: 'movie',
@@ -401,8 +402,8 @@ function app() {
                 watchlist.appendChild(li);
             });
         }
-    }
-}
+    });
+});
 
 // Global function for TMDB search (used in HTML)
 function searchTMDB(query) {
@@ -417,15 +418,6 @@ function toggleFavorite(index) {
 function deleteEntry(index) {
     return Alpine.store('app').deleteEntry(index);
 }
-
-// Initialize Alpine.js store
-document.addEventListener('alpine:init', () => {
-    Alpine.store('app', {
-        gsap: gsap, // Add this line to make GSAP available in your store
-        currentPage: 'dashboard',
-        // ... rest of your store properties and methods
-    });
-});
 
 // Run init after the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {

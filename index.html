@@ -146,7 +146,9 @@
             </div>
         </main>
 
-        <div id="notification" class="fixed top-4 right-4 p-4 rounded-lg text-white opacity-0 transition-opacity duration-300" :class="$store.app.notificationClass"></div>
+        <div id="notification" :class="$store.app.notificationClass">
+            <!-- Notification content -->
+        </div>
     </div>
 
     <template id="entry-template">
