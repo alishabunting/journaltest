@@ -28,71 +28,79 @@
         </nav>
 
         <!-- Main content -->
-        <main class="main-content flex-grow p-8">
-            <div class="max-w-4xl mx-auto bg-white shadow-lg p-8 rounded-lg">
+        <main class="main-content flex-grow p-8 overflow-y-auto">
+            <div class="max-w-6xl mx-auto">
                 <!-- Dashboard -->
-                <div x-show="currentPage === 'dashboard'" class="animate__animated animate__fadeIn">
+                <div x-show="currentPage === 'dashboard'" class="page-dashboard animate__animated animate__fadeIn">
                     <h2 class="text-4xl font-serif mb-6">Dashboard</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div class="card p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="card p-6 md:col-span-2">
                             <h3 class="text-2xl mb-4">Recent Entries</h3>
                             <ul id="recentEntries" class="space-y-2"></ul>
                         </div>
                         <div class="card p-6">
                             <h3 class="text-2xl mb-4">Quick Stats</h3>
                             <p class="text-lg">Total Entries: <span x-text="totalEntries" class="font-bold text-moleskine-red"></span></p>
-                            <p class="text-lg">Average Rating: <span x-text="averageRating" class="font-bold text-moleskine-red"></span></p>
+                            <p class="text-lg">Average Rating: <span x-text="averageRating.toFixed(1)" class="font-bold text-moleskine-red"></span></p>
                         </div>
-                        <div class="card p-6">
+                        <div class="card p-6 md:col-span-2">
                             <h3 class="text-2xl mb-4">Watchlist</h3>
                             <ul id="watchlist" class="space-y-2"></ul>
+                        </div>
+                        <div class="card p-6">
+                            <h3 class="text-2xl mb-4">Top Tags</h3>
+                            <p x-text="topTags"></p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Add Entry -->
-                <div x-show="currentPage === 'addEntry'" class="animate__animated animate__fadeIn">
+                <div x-show="currentPage === 'addEntry'" class="page-addEntry animate__animated animate__fadeIn">
                     <h2 class="text-4xl font-serif mb-6">Add New Entry</h2>
-                    <div class="space-y-4">
-                        <div>
-                            <label for="entryType" class="block text-sm font-medium text-moleskine-gray">Type</label>
-                            <select id="entryType" x-model="entryType" class="mt-1 block w-full rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50">
-                                <option value="movie">Movie</option>
-                                <option value="tvShow">TV Show</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="titleInput" class="block text-sm font-medium text-moleskine-gray">Title</label>
-                            <input type="text" id="titleInput" x-model="title" @input="searchTMDB($event.target.value)" placeholder="Search for a movie or TV show" class="mt-1 block w-full rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50">
-                            <div id="autocompleteResults" class="mt-2"></div>
-                        </div>
-                        <div id="boxArt" class="mb-4"></div>
-                        <div>
-                            <label for="dateWatched" class="block text-sm font-medium text-moleskine-gray">Date Watched</label>
-                            <input type="date" id="dateWatched" x-model="dateWatched" class="mt-1 block w-full rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50">
-                        </div>
-                        <div x-show="entryType === 'tvShow'">
-                            <label for="season" class="block text-sm font-medium text-moleskine-gray">Season</label>
-                            <input type="text" id="season" x-model="season" class="mt-1 block w-full rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50">
-                        </div>
-                        <div>
-                            <label for="rating" class="block text-sm font-medium text-moleskine-gray">Rating</label>
-                            <input type="number" id="rating" x-model="rating" min="1" max="5" class="mt-1 block w-full rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50">
-                        </div>
-                        <div>
-                            <label for="tags" class="block text-sm font-medium text-moleskine-gray">Tags</label>
-                            <input type="text" id="tags" x-model="tags" placeholder="Comma-separated tags" class="mt-1 block w-full rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-4">
+                            <div>
+                                <label for="entryType" class="block text-sm font-medium text-moleskine-gray">Type</label>
+                                <select id="entryType" x-model="entryType" class="mt-1 block w-full rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50">
+                                    <option value="movie">Movie</option>
+                                    <option value="tvShow">TV Show</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="titleInput" class="block text-sm font-medium text-moleskine-gray">Title</label>
+                                <input type="text" id="titleInput" x-model="title" @input="searchTMDB($event.target.value)" placeholder="Search for a movie or TV show" class="mt-1 block w-full rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50">
+                                <div id="autocompleteResults" class="mt-2"></div>
+                            </div>
+                            <div id="boxArt" class="mb-4"></div>
+                            <div>
+                                <label for="dateWatched" class="block text-sm font-medium text-moleskine-gray">Date Watched</label>
+                                <input type="date" id="dateWatched" x-model="dateWatched" class="mt-1 block w-full rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50">
+                            </div>
+                            <div x-show="entryType === 'tvShow'">
+                                <label for="season" class="block text-sm font-medium text-moleskine-gray">Season</label>
+                                <input type="text" id="season" x-model="season" class="mt-1 block w-full rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50">
+                            </div>
+                            <div>
+                                <label for="rating" class="block text-sm font-medium text-moleskine-gray">Rating</label>
+                                <input type="number" id="rating" x-model="rating" min="1" max="5" class="mt-1 block w-full rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50">
+                            </div>
+                            <div>
+                                <label for="tags" class="block text-sm font-medium text-moleskine-gray">Tags</label>
+                                <input type="text" id="tags" x-model="tags" placeholder="Comma-separated tags" class="mt-1 block w-full rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50">
+                            </div>
                         </div>
                         <div>
                             <label for="editor" class="block text-sm font-medium text-moleskine-gray">Notes</label>
-                            <div id="editor" class="mt-1 block w-full rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50"></div>
+                            <div id="editor" class="mt-1 block w-full rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50" style="height: 300px;"></div>
                         </div>
+                    </div>
+                    <div class="mt-6">
                         <button @click="addEntry()" class="btn bg-moleskine-red text-white px-4 py-2 rounded hover:bg-moleskine-brown transition-colors">Add Entry</button>
                     </div>
                 </div>
 
                 <!-- Browse Entries -->
-                <div x-show="currentPage === 'browseEntries'" class="animate__animated animate__fadeIn">
+                <div x-show="currentPage === 'browseEntries'" class="page-browseEntries animate__animated animate__fadeIn">
                     <h2 class="text-4xl font-serif mb-6">Browse Entries</h2>
                     <div class="mb-4 flex items-center">
                         <input type="text" x-model="searchTerm" @input="renderEntries()" placeholder="Search entries..." class="flex-grow rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50">
@@ -105,11 +113,11 @@
                             <option value="titleDesc">Title (Z-A)</option>
                         </select>
                     </div>
-                    <div id="entriesList" class="space-y-4" x-init="renderEntries()"></div>
+                    <div id="entriesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" x-init="renderEntries()"></div>
                 </div>
 
                 <!-- Statistics -->
-                <div x-show="currentPage === 'statistics'" x-init="updateCharts()" class="animate__animated animate__fadeIn">
+                <div x-show="currentPage === 'statistics'" class="page-statistics animate__animated animate__fadeIn" x-init="updateCharts()">
                     <h2 class="text-4xl font-serif mb-6">Statistics</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="card p-6">
@@ -132,18 +140,20 @@
                 </div>
 
                 <!-- Profile -->
-                <div x-show="currentPage === 'profile'" class="animate__animated animate__fadeIn">
+                <div x-show="currentPage === 'profile'" class="page-profile animate__animated animate__fadeIn">
                     <h2 class="text-4xl font-serif mb-6">Profile</h2>
-                    <div class="space-y-4">
-                        <div>
-                            <label for="username" class="block text-sm font-medium text-moleskine-gray">Username</label>
-                            <input type="text" id="username" x-model="username" class="mt-1 block w-full rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50">
+                    <div class="card p-6 max-w-md mx-auto">
+                        <div class="space-y-4">
+                            <div>
+                                <label for="username" class="block text-sm font-medium text-moleskine-gray">Username</label>
+                                <input type="text" id="username" x-model="username" class="mt-1 block w-full rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50">
+                            </div>
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-moleskine-gray">Email</label>
+                                <input type="email" id="email" x-model="email" class="mt-1 block w-full rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50">
+                            </div>
+                            <button @click="saveProfile()" class="btn bg-moleskine-red text-white px-4 py-2 rounded hover:bg-moleskine-brown transition-colors w-full">Save Profile</button>
                         </div>
-                        <div>
-                            <label for="email" class="block text-sm font-medium text-moleskine-gray">Email</label>
-                            <input type="email" id="email" x-model="email" class="mt-1 block w-full rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50">
-                        </div>
-                        <button @click="saveProfile()" class="btn bg-moleskine-red text-white px-4 py-2 rounded hover:bg-moleskine-brown transition-colors">Save Profile</button>
                     </div>
                 </div>
             </div>
