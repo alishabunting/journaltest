@@ -4,142 +4,153 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CineLog</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&family=Caveat&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Crimson+Text:wght@400;600&display=swap" rel="stylesheet">
     <link href="styles.css" rel="stylesheet">
+    <link href="custom.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" rel="stylesheet">
 </head>
-<body class="bg-background text-text font-sans">
-    <div x-data x-init="$store.app.init()">
-        <nav class="bg-primary text-white p-4">
-            <ul class="flex space-x-4">
-                <li><a href="#" @click="$store.app.changePage('dashboard')">Dashboard</a></li>
-                <li><a href="#" @click="$store.app.changePage('addEntry')">Add Entry</a></li>
-                <li><a href="#" @click="$store.app.changePage('browseEntries')">Browse Entries</a></li>
-                <li><a href="#" @click="$store.app.changePage('statistics')">Statistics</a></li>
-                <li><a href="#" @click="$store.app.changePage('profile')">Profile</a></li>
+<body class="bg-moleskine-cream text-moleskine-black font-sans">
+    <div x-data x-init="$store.app.init()" class="min-h-screen flex">
+        <!-- Sidebar -->
+        <nav class="bg-moleskine-black text-moleskine-cream w-64 p-6 flex flex-col">
+            <h1 class="text-3xl font-serif mb-8">CineLog</h1>
+            <ul class="space-y-4">
+                <li><a href="#" @click="$store.app.changePage('dashboard')" class="hover:text-moleskine-red transition-colors">Dashboard</a></li>
+                <li><a href="#" @click="$store.app.changePage('addEntry')" class="hover:text-moleskine-red transition-colors">Add Entry</a></li>
+                <li><a href="#" @click="$store.app.changePage('browseEntries')" class="hover:text-moleskine-red transition-colors">Browse Entries</a></li>
+                <li><a href="#" @click="$store.app.changePage('statistics')" class="hover:text-moleskine-red transition-colors">Statistics</a></li>
+                <li><a href="#" @click="$store.app.changePage('profile')" class="hover:text-moleskine-red transition-colors">Profile</a></li>
             </ul>
         </nav>
 
-        <div class="container mx-auto mt-8">
-            <div x-show="$store.app.currentPage === 'dashboard'" class="animate__animated animate__fadeIn page-dashboard">
-                <h2 class="text-4xl font-display font-bold mb-6">Dashboard</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="bg-white p-6 rounded-lg shadow-lg paper-texture">
-                        <h3 class="text-2xl font-handwritten mb-4">Recent Entries</h3>
-                        <ul id="recentEntries" class="space-y-2"></ul>
-                    </div>
-                    <div class="bg-white p-6 rounded-lg shadow-lg paper-texture">
-                        <h3 class="text-2xl font-handwritten mb-4">Quick Stats</h3>
-                        <p class="text-lg">Total Entries: <span x-text="$store.app.totalEntries" class="font-bold text-primary"></span></p>
-                        <p class="text-lg">Average Rating: <span x-text="$store.app.averageRating" class="font-bold text-primary"></span></p>
-                    </div>
-                    <div class="bg-white p-6 rounded-lg shadow-lg paper-texture">
-                        <h3 class="text-2xl font-handwritten mb-4">Watchlist</h3>
-                        <ul id="watchlist" class="space-y-2"></ul>
+        <!-- Main content -->
+        <main class="flex-grow p-8">
+            <div class="max-w-4xl mx-auto bg-white shadow-lg p-8 rounded-lg">
+                <!-- Dashboard -->
+                <div x-show="$store.app.currentPage === 'dashboard'" class="animate__animated animate__fadeIn">
+                    <h2 class="text-4xl font-serif mb-6">Dashboard</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="bg-moleskine-cream p-6 rounded-lg shadow">
+                            <h3 class="text-2xl mb-4">Recent Entries</h3>
+                            <ul id="recentEntries" class="space-y-2"></ul>
+                        </div>
+                        <div class="bg-moleskine-cream p-6 rounded-lg shadow">
+                            <h3 class="text-2xl mb-4">Quick Stats</h3>
+                            <p class="text-lg">Total Entries: <span x-text="$store.app.totalEntries" class="font-bold text-moleskine-red"></span></p>
+                            <p class="text-lg">Average Rating: <span x-text="$store.app.averageRating" class="font-bold text-moleskine-red"></span></p>
+                        </div>
+                        <div class="bg-moleskine-cream p-6 rounded-lg shadow">
+                            <h3 class="text-2xl mb-4">Watchlist</h3>
+                            <ul id="watchlist" class="space-y-2"></ul>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div x-show="$store.app.currentPage === 'addEntry'" class="animate__animated animate__fadeIn page-addEntry">
-                <h2 class="text-3xl font-bold mb-4">Add New Entry</h2>
-                <div class="bg-white p-6 rounded-lg shadow">
-                    <div class="mb-4">
-                        <label for="entryType" class="block text-sm font-medium text-gray-700">Type</label>
-                        <select id="entryType" x-model="$store.app.entryType" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                            <option value="movie">Movie</option>
-                            <option value="tvShow">TV Show</option>
+                <!-- Add Entry -->
+                <div x-show="$store.app.currentPage === 'addEntry'" class="animate__animated animate__fadeIn">
+                    <h2 class="text-4xl font-serif mb-6">Add New Entry</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="entryType" class="block text-sm font-medium text-moleskine-gray">Type</label>
+                            <select id="entryType" x-model="$store.app.entryType" class="mt-1 block w-full rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50">
+                                <option value="movie">Movie</option>
+                                <option value="tvShow">TV Show</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="titleInput" class="block text-sm font-medium text-moleskine-gray">Title</label>
+                            <input type="text" id="titleInput" x-model="$store.app.title" @input="$store.app.searchTMDB($event.target.value)" placeholder="Search for a movie or TV show" class="mt-1 block w-full rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50">
+                            <div id="autocompleteResults" class="mt-2"></div>
+                        </div>
+                        <div id="boxArt" class="mb-4"></div>
+                        <div>
+                            <label for="dateWatched" class="block text-sm font-medium text-moleskine-gray">Date Watched</label>
+                            <input type="date" id="dateWatched" x-model="$store.app.dateWatched" class="mt-1 block w-full rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50">
+                        </div>
+                        <div x-show="$store.app.entryType === 'tvShow'">
+                            <label for="season" class="block text-sm font-medium text-moleskine-gray">Season</label>
+                            <input type="text" id="season" x-model="$store.app.season" class="mt-1 block w-full rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50">
+                        </div>
+                        <div>
+                            <label for="rating" class="block text-sm font-medium text-moleskine-gray">Rating</label>
+                            <input type="number" id="rating" x-model="$store.app.rating" min="1" max="5" class="mt-1 block w-full rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50">
+                        </div>
+                        <div>
+                            <label for="tags" class="block text-sm font-medium text-moleskine-gray">Tags</label>
+                            <input type="text" id="tags" x-model="$store.app.tags" placeholder="Comma-separated tags" class="mt-1 block w-full rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50">
+                        </div>
+                        <div>
+                            <label for="editor" class="block text-sm font-medium text-moleskine-gray">Notes</label>
+                            <div id="editor" class="mt-1 block w-full rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50"></div>
+                        </div>
+                        <button @click="$store.app.addEntry()" class="bg-moleskine-red text-white px-4 py-2 rounded hover:bg-moleskine-brown transition-colors">Add Entry</button>
+                    </div>
+                </div>
+
+                <!-- Browse Entries -->
+                <div x-show="$store.app.currentPage === 'browseEntries'" class="animate__animated animate__fadeIn">
+                    <h2 class="text-4xl font-serif mb-6">Browse Entries</h2>
+                    <div class="mb-4 flex items-center">
+                        <input type="text" x-model="$store.app.searchTerm" @input="$store.app.renderEntries()" placeholder="Search entries..." class="flex-grow rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50">
+                        <select x-model="$store.app.sortMethod" @change="$store.app.renderEntries()" class="ml-4 rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50">
+                            <option value="dateDesc">Date (Newest First)</option>
+                            <option value="dateAsc">Date (Oldest First)</option>
+                            <option value="ratingDesc">Rating (High to Low)</option>
+                            <option value="ratingAsc">Rating (Low to High)</option>
+                            <option value="titleAsc">Title (A-Z)</option>
+                            <option value="titleDesc">Title (Z-A)</option>
                         </select>
                     </div>
-                    <div class="mb-4">
-                        <label for="titleInput" class="block text-sm font-medium text-gray-700">Title</label>
-                        <input type="text" id="titleInput" x-model="$store.app.title" @input="$store.app.searchTMDB($event.target.value)" placeholder="Search for a movie or TV show" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                        <div id="autocompleteResults" class="mt-2"></div>
-                    </div>
-                    <div id="boxArt" class="mb-4"></div>
-                    <div class="mb-4">
-                        <label for="dateWatched" class="block text-sm font-medium text-gray-700">Date Watched</label>
-                        <input type="date" id="dateWatched" x-model="$store.app.dateWatched" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                    </div>
-                    <div x-show="$store.app.entryType === 'tvShow'" class="mb-4">
-                        <label for="season" class="block text-sm font-medium text-gray-700">Season</label>
-                        <input type="text" id="season" x-model="$store.app.season" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                    </div>
-                    <div class="mb-4">
-                        <label for="rating" class="block text-sm font-medium text-gray-700">Rating</label>
-                        <input type="number" id="rating" x-model="$store.app.rating" min="1" max="5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                    </div>
-                    <div class="mb-4">
-                        <label for="tags" class="block text-sm font-medium text-gray-700">Tags</label>
-                        <input type="text" id="tags" x-model="$store.app.tags" placeholder="Comma-separated tags" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                    </div>
-                    <div class="mb-4">
-                        <label for="editor" class="block text-sm font-medium text-gray-700">Notes</label>
-                        <div id="editor" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"></div>
-                    </div>
-                    <button @click="$store.app.addEntry()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Add Entry</button>
+                    <div id="entriesList" class="space-y-4" x-init="$store.app.renderEntries()"></div>
                 </div>
-            </div>
 
-            <div x-show="$store.app.currentPage === 'browseEntries'" class="animate__animated animate__fadeIn page-browseEntries">
-                <h2 class="text-3xl font-bold mb-4">Browse Entries</h2>
-                <div class="mb-4 flex items-center">
-                    <input type="text" x-model="$store.app.searchTerm" @input="$store.app.renderEntries()" placeholder="Search entries..." class="flex-grow rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                    <select x-model="$store.app.sortMethod" @change="$store.app.renderEntries()" class="ml-4 rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                        <option value="dateDesc">Date (Newest First)</option>
-                        <option value="dateAsc">Date (Oldest First)</option>
-                        <option value="ratingDesc">Rating (High to Low)</option>
-                        <option value="ratingAsc">Rating (Low to High)</option>
-                        <option value="titleAsc">Title (A-Z)</option>
-                        <option value="titleDesc">Title (Z-A)</option>
-                    </select>
+                <!-- Statistics -->
+                <div x-show="$store.app.currentPage === 'statistics'" class="animate__animated animate__fadeIn" x-init="$store.app.updateCharts()">
+                    <h2 class="text-4xl font-serif mb-6">Statistics</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h3 class="text-2xl mb-4">Rating Distribution</h3>
+                            <canvas id="ratingChart"></canvas>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h3 class="text-2xl mb-4">Entries Timeline</h3>
+                            <canvas id="timelineChart"></canvas>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h3 class="text-2xl mb-4">Movie vs TV Show Distribution</h3>
+                            <canvas id="typeChart"></canvas>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h3 class="text-2xl mb-4">Top Tags</h3>
+                            <p x-text="$store.app.topTags"></p>
+                        </div>
+                    </div>
                 </div>
-                <div id="entriesList" class="space-y-4" x-init="$store.app.renderEntries()"></div>
-            </div>
 
-            <div x-show="$store.app.currentPage === 'statistics'" class="animate__animated animate__fadeIn page-statistics" x-init="$store.app.updateCharts()">
-                <h2 class="text-3xl font-bold mb-4">Statistics</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-white p-6 rounded-lg shadow">
-                        <h3 class="text-xl font-semibold mb-4">Rating Distribution</h3>
-                        <canvas id="ratingChart"></canvas>
-                    </div>
-                    <div class="bg-white p-6 rounded-lg shadow">
-                        <h3 class="text-xl font-semibold mb-4">Entries Timeline</h3>
-                        <canvas id="timelineChart"></canvas>
-                    </div>
-                    <div class="bg-white p-6 rounded-lg shadow">
-                        <h3 class="text-xl font-semibold mb-4">Movie vs TV Show Distribution</h3>
-                        <canvas id="typeChart"></canvas>
-                    </div>
-                    <div class="bg-white p-6 rounded-lg shadow">
-                        <h3 class="text-xl font-semibold mb-4">Top Tags</h3>
-                        <p x-text="$store.app.topTags"></p>
+                <!-- Profile -->
+                <div x-show="$store.app.currentPage === 'profile'" class="animate__animated animate__fadeIn">
+                    <h2 class="text-4xl font-serif mb-6">Profile</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="username" class="block text-sm font-medium text-moleskine-gray">Username</label>
+                            <input type="text" id="username" x-model="$store.app.username" class="mt-1 block w-full rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-moleskine-gray">Email</label>
+                            <input type="email" id="email" x-model="$store.app.email" class="mt-1 block w-full rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50">
+                        </div>
+                        <button @click="$store.app.saveProfile()" class="bg-moleskine-red text-white px-4 py-2 rounded hover:bg-moleskine-brown transition-colors">Save Profile</button>
                     </div>
                 </div>
             </div>
-
-            <div x-show="$store.app.currentPage === 'profile'" class="animate__animated animate__fadeIn page-profile">
-                <h2 class="text-3xl font-bold mb-4">Profile</h2>
-                <div class="bg-white p-6 rounded-lg shadow">
-                    <div class="mb-4">
-                        <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
-                        <input type="text" id="username" x-model="$store.app.username" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                    </div>
-                    <div class="mb-4">
-                        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                        <input type="email" id="email" x-model="$store.app.email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                    </div>
-                    <button @click="$store.app.saveProfile()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Save Profile</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="notification" x-text="$store.app.notificationMessage" :class="$store.app.notificationClass"></div>
+        </main>
     </div>
+
+    <div id="notification" x-text="$store.app.notificationMessage" :class="$store.app.notificationClass"></div>
     <script src="script.js"></script>
 </body>
 </html>
