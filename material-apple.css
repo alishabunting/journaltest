@@ -1,0 +1,27 @@
+.material-card {
+  @apply bg-white rounded-lg shadow-material transition-shadow duration-300 ease-in-out;
+}
+
+.material-card:hover {
+  @apply shadow-material-hover;
+}
+
+.apple-button {
+  @apply bg-blue-500 text-white font-semibold py-2 px-4 rounded-apple transition-all duration-300 ease-in-out;
+}
+
+.apple-button:hover {
+  @apply bg-blue-600 transform scale-105;
+}
+
+.material-input {
+  @apply border-b-2 border-gray-300 focus:border-blue-500 transition-colors duration-300 ease-in-out;
+}
+
+.apple-toggle {
+  @apply relative inline-flex items-center h-6 rounded-full w-11 transition-colors duration-300 ease-in-out;
+}
+
+.apple-toggle-switch {
+  @apply inline-block w-4 h-4 transform bg-white rounded-full transition-transform duration-300 ease-in-out;
+}

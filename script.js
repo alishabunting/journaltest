@@ -40,34 +40,37 @@ function appData() {
         },
 
         changePage(page) {
-            const currentPageElement = document.querySelector(`.page-${this.currentPage}`);
-            const newPageElement = document.querySelector(`.page-${page}`);
+            this.animatePageTransition(this.currentPage, page);
+            this.currentPage = page;
 
-            if (currentPageElement && newPageElement) {
-                this.gsap.to(currentPageElement, { 
-                    opacity: 0, 
-                    duration: 0.3, 
-                    onComplete: () => {
-                        this.currentPage = page;
-                        this.gsap.fromTo(newPageElement, 
-                            { opacity: 0 }, 
-                            { opacity: 1, duration: 0.3 }
-                        );
-                        
-                        if (page === 'browseEntries') {
-                            this.renderEntries();
-                        } else if (page === 'statistics') {
-                            setTimeout(() => {
-                                this.updateCharts();
-                            }, 0);
-                        } else if (page === 'dashboard') {
-                            this.renderDashboard();
-                        }
-                    }
-                });
-            } else {
-                console.error(`Page elements not found for ${this.currentPage} or ${page}`);
+            if (page === 'browseEntries') {
+                this.renderEntries();
+            } else if (page === 'statistics') {
+                setTimeout(() => {
+                    this.updateCharts();
+                }, 300);
+            } else if (page === 'dashboard') {
+                this.renderDashboard();
             }
+        },
+
+        animatePageTransition(from, to) {
+            const fromElement = document.querySelector(`.page-${from}`);
+            const toElement = document.querySelector(`.page-${to}`);
+
+            gsap.to(fromElement, {
+                opacity: 0,
+                x: -50,
+                duration: 0.3,
+                onComplete: () => {
+                    fromElement.style.display = 'none';
+                    toElement.style.display = 'block';
+                    gsap.fromTo(toElement,
+                        { opacity: 0, x: 50 },
+                        { opacity: 1, x: 0, duration: 0.3 }
+                    );
+                }
+            });
         },
 
         showNotification(message, type) {

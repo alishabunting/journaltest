@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Crimson+Text:wght@400;600&display=swap" rel="stylesheet">
     <link href="styles.css" rel="stylesheet">
     <link href="custom.css" rel="stylesheet">
+    <link href="material-apple.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -72,33 +73,33 @@
                     <h2 class="text-4xl font-serif mb-6">Add New Entry</h2>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div class="space-y-4">
-                            <div x-show="addEntryStep === 1">
+                            <div x-show="addEntryStep === 1" class="material-card p-6">
                                 <h3 class="text-2xl mb-4">Step 1: Basic Info</h3>
-                                <div>
+                                <div class="mb-4">
                                     <label for="entryType" class="block text-sm font-medium text-moleskine-gray">Type</label>
-                                    <select id="entryType" x-model="entryType" class="mt-1 block w-full rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50">
+                                    <select id="entryType" x-model="entryType" class="material-input mt-1 block w-full">
                                         <option value="movie">Movie</option>
                                         <option value="tvShow">TV Show</option>
                                     </select>
                                 </div>
-                                <div class="relative">
+                                <div class="relative mb-4">
                                     <label for="titleInput" class="block text-sm font-medium text-moleskine-gray">Title</label>
-                                    <input type="text" id="titleInput" x-model="title" @input="searchTMDB($event.target.value)" placeholder="Search for a movie or TV show" class="mt-1 block w-full rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50">
-                                    <div id="autocompleteResults" class="absolute z-10 w-full mt-1 bg-white border border-moleskine-gray rounded-md shadow-lg max-h-60 overflow-auto"></div>
+                                    <input type="text" id="titleInput" x-model="title" @input="searchTMDB($event.target.value)" placeholder="Search for a movie or TV show" class="material-input mt-1 block w-full">
+                                    <div id="autocompleteResults" class="absolute z-10 w-full mt-1 bg-white border border-moleskine-gray rounded-apple shadow-material max-h-60 overflow-auto"></div>
                                 </div>
-                                <div>
+                                <div class="mb-4">
                                     <label for="dateWatched" class="block text-sm font-medium text-moleskine-gray">Date Watched</label>
-                                    <input type="date" id="dateWatched" x-model="dateWatched" class="mt-1 block w-full rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50">
+                                    <input type="date" id="dateWatched" x-model="dateWatched" class="material-input mt-1 block w-full">
                                 </div>
-                                <button @click="addEntryStep = 2" class="btn bg-moleskine-red text-white px-4 py-2 rounded hover:bg-moleskine-brown transition-colors">Next</button>
+                                <button @click="addEntryStep = 2" class="apple-button">Next</button>
                             </div>
-                            <div x-show="addEntryStep === 2">
+                            <div x-show="addEntryStep === 2" class="material-card p-6">
                                 <h3 class="text-2xl mb-4">Step 2: Details</h3>
-                                <div x-show="entryType === 'tvShow'">
+                                <div x-show="entryType === 'tvShow'" class="mb-4">
                                     <label for="season" class="block text-sm font-medium text-moleskine-gray">Season</label>
-                                    <input type="text" id="season" x-model="season" class="mt-1 block w-full rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50">
+                                    <input type="text" id="season" x-model="season" class="material-input mt-1 block w-full">
                                 </div>
-                                <div>
+                                <div class="mb-4">
                                     <label for="rating" class="block text-sm font-medium text-moleskine-gray">Rating</label>
                                     <div class="flex items-center mt-1">
                                         <template x-for="star in [1, 2, 3, 4, 5]">
@@ -106,24 +107,24 @@
                                         </template>
                                     </div>
                                 </div>
-                                <div>
+                                <div class="mb-4">
                                     <label for="tags" class="block text-sm font-medium text-moleskine-gray">Tags</label>
-                                    <input type="text" id="tags" x-model="tags" placeholder="Comma-separated tags" class="mt-1 block w-full rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50">
+                                    <input type="text" id="tags" x-model="tags" placeholder="Comma-separated tags" class="material-input mt-1 block w-full">
                                 </div>
                                 <div class="flex justify-between">
-                                    <button @click="addEntryStep = 1" class="btn bg-moleskine-gray text-white px-4 py-2 rounded hover:bg-moleskine-brown transition-colors">Previous</button>
-                                    <button @click="addEntryStep = 3" class="btn bg-moleskine-red text-white px-4 py-2 rounded hover:bg-moleskine-brown transition-colors">Next</button>
+                                    <button @click="addEntryStep = 1" class="apple-button">Previous</button>
+                                    <button @click="addEntryStep = 3" class="apple-button">Next</button>
                                 </div>
                             </div>
-                            <div x-show="addEntryStep === 3">
+                            <div x-show="addEntryStep === 3" class="material-card p-6">
                                 <h3 class="text-2xl mb-4">Step 3: Notes</h3>
-                                <div>
+                                <div class="mb-4">
                                     <label for="editor" class="block text-sm font-medium text-moleskine-gray">Notes</label>
-                                    <div id="editor" class="mt-1 block w-full rounded-md border-moleskine-gray shadow-sm focus:border-moleskine-red focus:ring focus:ring-moleskine-red focus:ring-opacity-50" style="height: 200px;"></div>
+                                    <div id="editor" class="material-input mt-1 block w-full" style="height: 200px;"></div>
                                 </div>
-                                <div class="flex justify-between mt-4">
-                                    <button @click="addEntryStep = 2" class="btn bg-moleskine-gray text-white px-4 py-2 rounded hover:bg-moleskine-brown transition-colors">Previous</button>
-                                    <button @click="addEntry()" class="btn bg-moleskine-red text-white px-4 py-2 rounded hover:bg-moleskine-brown transition-colors">Add Entry</button>
+                                <div class="flex justify-between">
+                                    <button @click="addEntryStep = 2" class="apple-button">Previous</button>
+                                    <button @click="addEntry()" class="apple-button">Add Entry</button>
                                 </div>
                             </div>
                         </div>
