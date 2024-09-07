@@ -1,11 +1,7 @@
 let quill;
 
-document.addEventListener('DOMContentLoaded', () => {
-    // The rest of your DOMContentLoaded code...
-});
-
-document.addEventListener('alpine:init', () => {
-    Alpine.store('app', {
+function appData() {
+    return {
         gsap: window.gsap,
         currentPage: 'dashboard',
         entries: [],
@@ -412,7 +408,11 @@ document.addEventListener('alpine:init', () => {
         },
 
         // Add any other methods you need here
-    });
+    };
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Any DOM-related initialization can go here
 });
 
-// If you have any code outside of the Alpine.js store, add it here
+// If you have any code outside of the appData function, keep it here

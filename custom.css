@@ -4,11 +4,17 @@
   --moleskine-red: #D92121;
   --moleskine-gray: #8C8C8C;
   --moleskine-brown: #4A4238;
+  --moleskine-light-gray: #E0DDD5;
 }
 
 body {
   background-color: var(--moleskine-cream);
   color: var(--moleskine-black);
+  font-family: 'Lato', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Crimson Text', serif;
 }
 
 .bg-moleskine-black {
@@ -21,6 +27,10 @@ body {
 
 .bg-moleskine-red {
   background-color: var(--moleskine-red);
+}
+
+.bg-moleskine-light-gray {
+  background-color: var(--moleskine-light-gray);
 }
 
 .text-moleskine-black {
@@ -53,4 +63,101 @@ body {
 
 .focus\:ring-moleskine-red:focus {
   --tw-ring-color: var(--moleskine-red);
+}
+
+/* Enhanced Sidebar */
+.sidebar {
+  background-color: var(--moleskine-black);
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.sidebar h1 {
+  color: var(--moleskine-cream);
+  font-size: 2.5rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar ul li a {
+  transition: all 0.2s ease;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+}
+
+.sidebar ul li a:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: translateX(5px);
+}
+
+/* Enhanced Main Content */
+.main-content {
+  background-color: var(--moleskine-light-gray);
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Card Styles */
+.card {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Button Styles */
+.btn {
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Input Styles */
+input[type="text"], input[type="email"], input[type="number"], input[type="date"], select, textarea {
+  transition: all 0.2s ease;
+  border: 2px solid var(--moleskine-gray);
+}
+
+input[type="text"]:focus, input[type="email"]:focus, input[type="number"]:focus, input[type="date"]:focus, select:focus, textarea:focus {
+  border-color: var(--moleskine-red);
+  box-shadow: 0 0 0 3px rgba(217, 33, 33, 0.2);
+}
+
+/* Chart Styles */
+canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Notification Styles */
+#notification {
+  transition: all 0.3s ease;
+  transform: translateY(-100%);
+}
+
+#notification.show {
+  transform: translateY(0);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+  }
+  
+  .main-content {
+    margin-left: 0;
+  }
 }
