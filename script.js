@@ -27,6 +27,7 @@ function appData() {
         typeChart: null,
         tmdbResults: [],
         selectedTMDBItem: null,
+        addEntryStep: 1,
 
         init() {
             this.loadEntries();
@@ -34,6 +35,8 @@ function appData() {
             this.loadWatchlist();
             this.renderDashboard();
             this.initQuill();
+            this.initTagCloud();
+            this.updateAverageRatingChart();
         },
 
         changePage(page) {
@@ -292,15 +295,12 @@ function appData() {
 
         renderTMDBResults() {
             const resultsContainer = document.getElementById('autocompleteResults');
-            resultsContainer.innerHTML = '';
-
-            this.tmdbResults.forEach(item => {
-                const resultElement = document.createElement('div');
-                resultElement.className = 'p-2 hover:bg-gray-100 cursor-pointer';
-                resultElement.textContent = item.title || item.name;
-                resultElement.addEventListener('click', () => this.selectTMDBItem(item));
-                resultsContainer.appendChild(resultElement);
-            });
+            resultsContainer.innerHTML = this.tmdbResults.map(item => `
+                <div class="p-2 hover:bg-gray-100 cursor-pointer flex items-center" @click="selectTMDBItem(${JSON.stringify(item).replace(/"/g, '&quot;')})">
+                    <img src="https://image.tmdb.org/t/p/w92${item.poster_path}" alt="${item.title || item.name} Poster" class="w-12 h-18 object-cover mr-2">
+                    <span>${item.title || item.name}</span>
+                </div>
+            `).join('');
         },
 
         selectTMDBItem(item) {
@@ -314,8 +314,8 @@ function appData() {
         renderBoxArt() {
             const boxArtContainer = document.getElementById('boxArt');
             if (this.selectedTMDBItem && this.selectedTMDBItem.poster_path) {
-                const imgUrl = `https://image.tmdb.org/t/p/w200${this.selectedTMDBItem.poster_path}`;
-                boxArtContainer.innerHTML = `<img src="${imgUrl}" alt="${this.title} Poster" class="w-32 h-auto">`;
+                const imgUrl = `https://image.tmdb.org/t/p/w300${this.selectedTMDBItem.poster_path}`;
+                boxArtContainer.innerHTML = `<img src="${imgUrl}" alt="${this.title} Poster" class="w-full h-auto rounded-lg shadow-lg">`;
             } else {
                 boxArtContainer.innerHTML = '';
             }
@@ -405,6 +405,30 @@ function appData() {
             };
             localStorage.setItem('profile', JSON.stringify(profile));
             this.showNotification('Profile saved successfully', 'success');
+        },
+
+        initTagCloud() {
+            const tagCloud = document.getElementById('tagCloud');
+            const tags = this.topTags.split(', ');
+            tagCloud.innerHTML = tags.map(tag => `<span class="bg-moleskine-light-gray text-moleskine-black px-2 py-1 rounded">${tag}</span>`).join('');
+        },
+
+        updateAverageRatingChart() {
+            const path = this.$refs.avgRatingPath;
+            const normalizedRating = (this.averageRating / 5) * 100;
+            path.style.strokeDasharray = `${normalizedRating}, 100`;
+        },
+
+        renderRecentEntries() {
+            const recentEntries = document.getElementById('recentEntries');
+            const recentEntriesHtml = this.entries.slice(0, 4).map(entry => `
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h4 class="font-bold">${entry.title}</h4>
+                    <p>Rating: ${entry.rating}/5</p>
+                    <p>Watched: ${entry.dateWatched}</p>
+                </div>
+            `).join('');
+            recentEntries.innerHTML = recentEntriesHtml;
         },
 
         // Add any other methods you need here
