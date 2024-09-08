@@ -1,6 +1,11 @@
-const express = require('express');
-const path = require('path');
-const fetch = require('node-fetch');
+import express from 'express';
+import path from 'path';
+import fetch from 'node-fetch';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 const port = 3000;
 
@@ -18,20 +23,26 @@ async function fetchGenres() {
   const tvGenresUrl = `https://api.themoviedb.org/3/genre/tv/list?api_key=${apiKey}`;
 
   try {
-    const movieResponse = await fetch(movieGenresUrl);
-    const tvResponse = await fetch(tvGenresUrl);
+    const [movieResponse, tvResponse] = await Promise.all([
+      fetch(movieGenresUrl),
+      fetch(tvGenresUrl)
+    ]);
 
-    if (!movieResponse.ok || !tvResponse.ok) {
-      throw new Error(`HTTP error! status: ${movieResponse.status} ${tvResponse.status}`);
-    }
-
-    const movieData = await movieResponse.json();
-    const tvData = await tvResponse.json();
+    const movieGenres = await movieResponse.json();
+    const tvGenres = await tvResponse.json();
 
     genres = {
-      movie: movieData.genres,
-      tv: tvData.genres
+      movie: movieGenres.genres.reduce((acc, genre) => {
+        acc[genre.id] = genre.name;
+        return acc;
+      }, {}),
+      tv: tvGenres.genres.reduce((acc, genre) => {
+        acc[genre.id] = genre.name;
+        return acc;
+      }, {})
     };
+
+    console.log('Genres fetched successfully');
   } catch (error) {
     console.error('Error fetching genres:', error);
   }
@@ -40,19 +51,20 @@ async function fetchGenres() {
 fetchGenres();
 
 app.get('/api/search', async (req, res) => {
-  const { query, type } = req.query;
   const apiKey = process.env.TMDB_API_KEY;
+  const { query, type } = req.query;
   const url = `https://api.themoviedb.org/3/search/${type}?api_key=${apiKey}&query=${encodeURIComponent(query)}`;
-  
+
   try {
     const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
     const data = await response.json();
-    res.json(data.results);
+    const results = data.results.map(item => ({
+      ...item,
+      genre_names: item.genre_ids.map(id => genres[type][id]).filter(Boolean)
+    }));
+    res.json(results);
   } catch (error) {
-    console.error('Error fetching TMDB data:', error);
+    console.error('Error:', error);
     res.status(500).json({ error: 'An error occurred while fetching data' });
   }
 });

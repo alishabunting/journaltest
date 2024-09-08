@@ -3,6 +3,7 @@
     "version": "1.0.0",
     "description": "A journal app for tracking movies and TV shows",
     "main": "server.js",
+    "type": "module",
     "scripts": {
         "start": "node server.js",
         "build:css": "tailwindcss -i ./input.css -o ./styles.css --watch"
@@ -14,6 +15,7 @@
         "autoprefixer": "^10.x.x",
         "express": "^4.17.1",
         "gsap": "^3.12.5",
+        "node-fetch": "^3.3.0",
         "postcss": "^8.x.x",
         "tailwindcss": "^3.x.x"
     }
