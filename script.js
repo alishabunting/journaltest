@@ -105,18 +105,41 @@ function appData() {
 
             sortedEntries.forEach((entry, index) => {
                 const entryElement = document.createElement('div');
-                entryElement.className = 'bg-white p-4 rounded-lg shadow mb-4';
+                entryElement.className = 'bg-white p-4 rounded-lg shadow mb-4 cursor-pointer';
                 entryElement.innerHTML = `
-                    <h3 class="text-xl font-semibold">${entry.title}</h3>
-                    <p>Type: ${entry.type}</p>
-                    <p>Date: ${entry.dateWatched}</p>
-                    <p>Rating: ${entry.rating}/5</p>
-                    <p>Tags: ${entry.tags}</p>
-                    <button @click="$store.app.editEntry(${index})" class="bg-blue-500 text-white px-2 py-1 rounded mr-2">Edit</button>
-                    <button @click="$store.app.deleteEntry(${index})" class="bg-red-500 text-white px-2 py-1 rounded">Delete</button>
+                    <div class="flex items-center">
+                        <img src="https://image.tmdb.org/t/p/w92${entry.poster_path}" alt="${entry.title} Poster" class="w-16 h-24 object-cover mr-4">
+                        <div>
+                            <h3 class="text-xl font-semibold">${entry.title}</h3>
+                            <p>Type: ${entry.type}</p>
+                            <p>Date: ${entry.dateWatched}</p>
+                            <p>Rating: ${entry.rating}/5</p>
+                            <p>Tags: ${entry.tags}</p>
+                        </div>
+                    </div>
                 `;
+                entryElement.addEventListener('click', () => this.viewFullEntry(entry));
                 entriesList.appendChild(entryElement);
             });
+        },
+
+        viewFullEntry(entry) {
+            const overlay = document.createElement('div');
+            overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center';
+            overlay.innerHTML = `
+                <div class="bg-white p-6 rounded-lg max-w-2xl w-full max-h-90vh overflow-y-auto">
+                    <h3 class="text-2xl mb-4">${entry.title}</h3>
+                    <img src="https://image.tmdb.org/t/p/w300${entry.poster_path}" alt="${entry.title} Poster" class="float-right ml-4 mb-4">
+                    <p><strong>Type:</strong> ${entry.type}</p>
+                    <p><strong>Date Watched:</strong> ${entry.dateWatched}</p>
+                    <p><strong>Rating:</strong> ${entry.rating}/5</p>
+                    <p><strong>Tags:</strong> ${entry.tags}</p>
+                    <div class="mt-4"><strong>Notes:</strong></div>
+                    <div>${entry.notes}</div>
+                    <button class="apple-button mt-4" onclick="this.closest('.fixed').remove()">Close</button>
+                </div>
+            `;
+            document.body.appendChild(overlay);
         },
 
         sortEntries(entries) {
@@ -271,9 +294,10 @@ function appData() {
             }
         },
 
-        searchTMDB(query) {
+        searchTMDB(query, resultsDiv = null) {
             if (query.length < 3) {
                 this.tmdbResults = [];
+                if (resultsDiv) resultsDiv.innerHTML = '';
                 return;
             }
 
@@ -288,7 +312,17 @@ function appData() {
                 })
                 .then(data => {
                     this.tmdbResults = data.slice(0, 5); // Limit to 5 results
-                    this.renderTMDBResults();
+                    
+                    if (resultsDiv) {
+                        resultsDiv.innerHTML = this.tmdbResults.map(item => `
+                            <div class="p-2 hover:bg-gray-100 cursor-pointer flex items-center" onclick="selectTMDBItem(${JSON.stringify(item).replace(/"/g, '&quot;')})">
+                                <img src="https://image.tmdb.org/t/p/w92${item.poster_path}" alt="${item.title || item.name} Poster" class="w-12 h-18 object-cover mr-2">
+                                <span>${item.title || item.name}</span>
+                            </div>
+                        `).join('');
+                    } else {
+                        this.renderTMDBResults();
+                    }
                 })
                 .catch(error => {
                     console.error('Error fetching TMDB data:', error);
@@ -309,6 +343,7 @@ function appData() {
         selectTMDBItem(item) {
             this.selectedTMDBItem = item;
             this.title = item.title || item.name;
+            this.tags = item.genre_ids.join(',');  // Store genre IDs as tags
             document.getElementById('titleInput').value = this.title;
             document.getElementById('autocompleteResults').innerHTML = '';
             this.renderBoxArt();
@@ -332,7 +367,8 @@ function appData() {
                 season: this.season,
                 rating: this.rating,
                 tags: this.tags || '',
-                notes: quill.root.innerHTML
+                notes: quill.root.innerHTML,
+                poster_path: this.selectedTMDBItem ? this.selectedTMDBItem.poster_path : null
             };
             this.entries.push(newEntry);
             this.saveEntries();
@@ -379,7 +415,8 @@ function appData() {
             this.rating = '';
             this.tags = '';
             quill.root.innerHTML = '';
-            this.selectedItem = null;
+            this.selectedTMDBItem = null;
+            this.addEntryStep = 1;  // Reset to step 1
         },
 
         editEntry(index) {
@@ -424,15 +461,162 @@ function appData() {
 
         renderRecentEntries() {
             const recentEntries = document.getElementById('recentEntries');
-            const recentEntriesHtml = this.entries.slice(0, 4).map(entry => `
-                <div class="bg-white p-4 rounded-lg shadow">
-                    <h4 class="font-bold">${entry.title}</h4>
-                    <p>Rating: ${entry.rating}/5</p>
-                    <p>Watched: ${entry.dateWatched}</p>
+            const recentEntriesHtml = this.entries.slice(0, 5).map((entry, index) => `
+                <div class="carousel-item ${index === 0 ? 'active' : ''}" data-entry-index="${index}">
+                    <img src="https://image.tmdb.org/t/p/w300${entry.poster_path}" alt="${entry.title} Poster" class="w-full h-auto">
+                    <p class="mt-2 text-center">${entry.title}</p>
                 </div>
             `).join('');
             recentEntries.innerHTML = recentEntriesHtml;
+
+            // Add click event to view full entry
+            recentEntries.querySelectorAll('.carousel-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const index = parseInt(item.dataset.entryIndex);
+                    this.viewFullEntry(this.entries[index]);
+                });
+            });
+
+            // Initialize carousel
+            new Carousel(recentEntries, {
+                interval: 5000,
+                wrap: true,
+                touch: true
+            });
         },
+
+        addToWatchlist() {
+            const overlay = document.createElement('div');
+            overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center';
+            overlay.innerHTML = `
+                <div class="bg-white p-6 rounded-lg">
+                    <h3 class="text-2xl mb-4">Add to Watchlist</h3>
+                    <input type="text" id="watchlistSearch" placeholder="Search for a movie or TV show" class="material-input mb-4 w-full">
+                    <div id="watchlistResults" class="mb-4"></div>
+                    <textarea id="watchlistNotes" placeholder="Add notes" class="material-input mb-4 w-full"></textarea>
+                    <button id="addWatchlistItem" class="apple-button">Add to Watchlist</button>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+
+            const searchInput = document.getElementById('watchlistSearch');
+            const resultsDiv = document.getElementById('watchlistResults');
+            const addButton = document.getElementById('addWatchlistItem');
+
+            searchInput.addEventListener('input', () => this.searchTMDB(searchInput.value, resultsDiv));
+            addButton.addEventListener('click', () => {
+                const notes = document.getElementById('watchlistNotes').value;
+                if (this.selectedTMDBItem) {
+                    this.watchlist.push({
+                        ...this.selectedTMDBItem,
+                        notes: notes
+                    });
+                    this.saveWatchlist();
+                    this.renderWatchlist();
+                    document.body.removeChild(overlay);
+                }
+            });
+        },
+
+        saveWatchlist() {
+            localStorage.setItem('watchlist', JSON.stringify(this.watchlist));
+        },
+
+        renderWatchlist() {
+            const watchlistContainer = document.getElementById('watchlist');
+            watchlistContainer.innerHTML = this.watchlist.map(item => `
+                <div class="flex items-center mb-2">
+                    <img src="https://image.tmdb.org/t/p/w92${item.poster_path}" alt="${item.title || item.name} Poster" class="w-12 h-18 object-cover mr-2">
+                    <span>${item.title || item.name}</span>
+                </div>
+            `).join('');
+        },
+
+        renderStatistics() {
+            const allTags = this.entries.flatMap(entry => entry.genre_names);
+            const tagCounts = allTags.reduce((acc, tag) => {
+                acc[tag] = (acc[tag] || 0) + 1;
+                return acc;
+            }, {});
+
+            const sortedTags = Object.entries(tagCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+
+            const topTagsHtml = sortedTags.map(([tag, count]) => `
+                <div class="flex justify-between items-center mb-2">
+                    <span>${tag}</span>
+                    <span class="bg-moleskine-red text-white px-2 py-1 rounded">${count}</span>
+                </div>
+            `).join('');
+
+            document.getElementById('topTags').innerHTML = topTagsHtml;
+
+            // Render average rating chart
+            this.updateAverageRatingChart();
+
+            // Render entries by type chart
+            const typeData = this.entries.reduce((acc, entry) => {
+                acc[entry.type] = (acc[entry.type] || 0) + 1;
+                return acc;
+            }, {});
+
+            const typeChartCtx = document.getElementById('typeChart').getContext('2d');
+            new Chart(typeChartCtx, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(typeData),
+                    datasets: [{
+                        data: Object.values(typeData),
+                        backgroundColor: ['#A61C1C', '#4A4238']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    title: {
+                        display: true,
+                        text: 'Entries by Type'
+                    }
+                }
+            });
+
+            // Render entries over time chart
+            const timeData = this.entries.reduce((acc, entry) => {
+                const date = new Date(entry.dateWatched);
+                const month = date.toLocaleString('default', { month: 'short', year: 'numeric' });
+                acc[month] = (acc[month] || 0) + 1;
+                return acc;
+            }, {});
+
+            const timeChartCtx = document.getElementById('timeChart').getContext('2d');
+            new Chart(timeChartCtx, {
+                type: 'line',
+                data: {
+                    labels: Object.keys(timeData),
+                    datasets: [{
+                        label: 'Entries',
+                        data: Object.values(timeData),
+                        borderColor: '#A61C1C',
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    title: {
+                        display: true,
+                        text: 'Entries Over Time'
+                    },
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true,
+                                stepSize: 1
+                            }
+                        }]
+                    }
+                }
+            });
+        }
 
         // Add any other methods you need here
     };

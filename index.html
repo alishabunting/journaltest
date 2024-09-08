@@ -17,14 +17,14 @@
 <body class="bg-moleskine-cream text-moleskine-black font-sans">
     <div x-data="appData()" x-init="init()" class="min-h-screen flex flex-col md:flex-row">
         <!-- Sidebar -->
-        <nav class="sidebar w-full md:w-64 p-6 flex flex-col">
+        <nav class="sidebar w-full md:w-64 p-6 flex flex-col bg-moleskine-black text-white">
             <h1 class="text-3xl font-serif mb-8">CineLog</h1>
             <ul class="space-y-4">
-                <li><a href="#" @click="changePage('dashboard')" class="block hover:text-moleskine-red transition-colors">Dashboard</a></li>
-                <li><a href="#" @click="changePage('addEntry')" class="block hover:text-moleskine-red transition-colors">Add Entry</a></li>
-                <li><a href="#" @click="changePage('browseEntries')" class="block hover:text-moleskine-red transition-colors">Browse Entries</a></li>
-                <li><a href="#" @click="changePage('statistics')" class="block hover:text-moleskine-red transition-colors">Statistics</a></li>
-                <li><a href="#" @click="changePage('profile')" class="block hover:text-moleskine-red transition-colors">Profile</a></li>
+                <li x-show="currentPage !== 'dashboard'"><a href="#" @click="changePage('dashboard')" class="block hover:text-moleskine-red transition-colors">Dashboard</a></li>
+                <li x-show="currentPage !== 'addEntry'"><a href="#" @click="changePage('addEntry')" class="block hover:text-moleskine-red transition-colors">Add Entry</a></li>
+                <li x-show="currentPage !== 'browseEntries'"><a href="#" @click="changePage('browseEntries')" class="block hover:text-moleskine-red transition-colors">Browse Entries</a></li>
+                <li x-show="currentPage !== 'statistics'"><a href="#" @click="changePage('statistics')" class="block hover:text-moleskine-red transition-colors">Statistics</a></li>
+                <li x-show="currentPage !== 'profile'"><a href="#" @click="changePage('profile')" class="block hover:text-moleskine-red transition-colors">Profile</a></li>
             </ul>
         </nav>
 
@@ -33,15 +33,16 @@
             <div class="max-w-6xl mx-auto">
                 <!-- Dashboard -->
                 <div x-show="currentPage === 'dashboard'" class="page-dashboard animate__animated animate__fadeIn">
-                    <div class="bg-moleskine-red text-white p-8 rounded-lg mb-8">
+                    <div class="bg-moleskine-red text-moleskine-cream p-8 rounded-lg mb-8">
                         <h2 class="text-4xl font-serif mb-4">Welcome back, <span x-text="username || 'Cinephile'"></span>!</h2>
                         <p class="mb-4">Ready to log your latest watch?</p>
-                        <button @click="changePage('addEntry')" class="bg-white text-moleskine-red px-4 py-2 rounded hover:bg-moleskine-cream transition-colors">Add New Entry</button>
+                        <button @click="changePage('addEntry')" class="btn-moleskine-red px-4 py-2 rounded hover:bg-moleskine-brown transition-colors mr-2">Add New Entry</button>
+                        <button @click="addToWatchlist()" class="btn-moleskine-red px-4 py-2 rounded hover:bg-moleskine-brown transition-colors">Add to Watchlist</button>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="card p-6 md:col-span-2">
                             <h3 class="text-2xl mb-4">Recent Entries</h3>
-                            <div id="recentEntries" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+                            <div id="recentEntries" class="carousel slide" data-ride="carousel"></div>
                         </div>
                         <div class="card p-6">
                             <h3 class="text-2xl mb-4">Quick Stats</h3>

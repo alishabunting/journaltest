@@ -1,7 +1,7 @@
 :root {
   --moleskine-black: #2C2C2C;
   --moleskine-cream: #F4F1E9;
-  --moleskine-red: #D92121;
+  --moleskine-red: #A61C1C;  /* Darker red */
   --moleskine-gray: #8C8C8C;
   --moleskine-brown: #4A4238;
   --moleskine-light-gray: #E0DDD5;
@@ -160,4 +160,14 @@ canvas {
   .main-content {
     margin-left: 0;
   }
+}
+
+/* Add this new style for buttons */
+.btn-moleskine-red {
+  background-color: var(--moleskine-red);
+  color: var(--moleskine-cream);
+}
+
+.btn-moleskine-red:hover {
+  background-color: #8A1717;  /* Even darker red for hover state */
 }
