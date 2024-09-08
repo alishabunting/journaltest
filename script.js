@@ -37,6 +37,7 @@ function appData() {
             this.initQuill();
             this.initTagCloud();
             this.updateAverageRatingChart();
+            this.renderRecentEntries();
         },
 
         changePage(page) {
@@ -106,9 +107,10 @@ function appData() {
             sortedEntries.forEach((entry, index) => {
                 const entryElement = document.createElement('div');
                 entryElement.className = 'bg-white p-4 rounded-lg shadow mb-4 cursor-pointer';
+                const posterPath = entry.poster_path ? `https://image.tmdb.org/t/p/w92${entry.poster_path}` : 'path/to/default/image.jpg';
                 entryElement.innerHTML = `
                     <div class="flex items-center">
-                        <img src="https://image.tmdb.org/t/p/w92${entry.poster_path}" alt="${entry.title} Poster" class="w-16 h-24 object-cover mr-4">
+                        <img src="${posterPath}" alt="${entry.title} Poster" class="w-16 h-24 object-cover mr-4">
                         <div>
                             <h3 class="text-xl font-semibold">${entry.title}</h3>
                             <p>Type: ${entry.type}</p>
@@ -126,16 +128,19 @@ function appData() {
         viewFullEntry(entry) {
             const overlay = document.createElement('div');
             overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center';
+            const posterPath = entry.poster_path ? `https://image.tmdb.org/t/p/w300${entry.poster_path}` : 'path/to/default/image.jpg';
             overlay.innerHTML = `
                 <div class="bg-white p-6 rounded-lg max-w-2xl w-full max-h-90vh overflow-y-auto">
                     <h3 class="text-2xl mb-4">${entry.title}</h3>
-                    <img src="https://image.tmdb.org/t/p/w300${entry.poster_path}" alt="${entry.title} Poster" class="float-right ml-4 mb-4">
+                    <img src="${posterPath}" alt="${entry.title} Poster" class="float-right ml-4 mb-4">
                     <p><strong>Type:</strong> ${entry.type}</p>
                     <p><strong>Date Watched:</strong> ${entry.dateWatched}</p>
                     <p><strong>Rating:</strong> ${entry.rating}/5</p>
                     <p><strong>Tags:</strong> ${entry.tags}</p>
                     <div class="mt-4"><strong>Notes:</strong></div>
                     <div>${entry.notes}</div>
+                    <button class="apple-button mt-4 mr-2" onclick="appData().editEntry(${this.entries.indexOf(entry)})">Edit</button>
+                    <button class="apple-button mt-4 mr-2" onclick="appData().deleteEntry(${this.entries.indexOf(entry)})">Delete</button>
                     <button class="apple-button mt-4" onclick="this.closest('.fixed').remove()">Close</button>
                 </div>
             `;
@@ -315,7 +320,7 @@ function appData() {
                     
                     if (resultsDiv) {
                         resultsDiv.innerHTML = this.tmdbResults.map(item => `
-                            <div class="p-2 hover:bg-gray-100 cursor-pointer flex items-center" onclick="selectTMDBItem(${JSON.stringify(item).replace(/"/g, '&quot;')})">
+                            <div class="p-2 hover:bg-gray-100 cursor-pointer flex items-center search-result-item" data-item='${JSON.stringify(item)}'>
                                 <img src="https://image.tmdb.org/t/p/w92${item.poster_path}" alt="${item.title || item.name} Poster" class="w-12 h-18 object-cover mr-2">
                                 <span>${item.title || item.name}</span>
                             </div>
@@ -343,7 +348,7 @@ function appData() {
         selectTMDBItem(item) {
             this.selectedTMDBItem = item;
             this.title = item.title || item.name;
-            this.tags = item.genre_ids.join(',');  // Store genre IDs as tags
+            this.tags = item.genre_names.join(', ');  // Use genre names instead of IDs
             document.getElementById('titleInput').value = this.title;
             document.getElementById('autocompleteResults').innerHTML = '';
             this.renderBoxArt();
@@ -432,10 +437,12 @@ function appData() {
         },
 
         deleteEntry(index) {
-            this.entries.splice(index, 1);
-            this.saveEntries();
-            this.showNotification('Entry deleted successfully', 'success');
-            this.renderEntries();
+            if (confirm('Are you sure you want to delete this entry?')) {
+                this.entries.splice(index, 1);
+                this.saveEntries();
+                this.showNotification('Entry deleted successfully', 'success');
+                this.renderEntries();
+            }
         },
 
         saveProfile() {
@@ -486,6 +493,7 @@ function appData() {
         },
 
         addToWatchlist() {
+            const self = this;  // Store reference to 'this'
             const overlay = document.createElement('div');
             overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center';
             overlay.innerHTML = `
@@ -504,6 +512,15 @@ function appData() {
             const addButton = document.getElementById('addWatchlistItem');
 
             searchInput.addEventListener('input', () => this.searchTMDB(searchInput.value, resultsDiv));
+            
+            // Use event delegation for dynamically created elements
+            resultsDiv.addEventListener('click', function(event) {
+                if (event.target.closest('.search-result-item')) {
+                    const item = JSON.parse(event.target.closest('.search-result-item').dataset.item);
+                    self.selectTMDBItem(item);
+                }
+            });
+
             addButton.addEventListener('click', () => {
                 const notes = document.getElementById('watchlistNotes').value;
                 if (this.selectedTMDBItem) {
