@@ -1,0 +1,31 @@
+.recent-entries-swiper {
+    padding: 20px 0;
+}
+
+.entry-card {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.entry-card:hover {
+    transform: translateY(-5px);
+}
+
+.entry-info {
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.rating {
+    color: #ffd700;
+}
+
+.swiper-button-next, .swiper-button-prev {
+    color: #A61C1C;
+}
+
+.swiper-pagination-bullet-active {
+    background: #A61C1C;
+}

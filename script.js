@@ -37,7 +37,7 @@ function appData() {
             this.initQuill();
             this.initTagCloud();
             this.updateAverageRatingChart();
-            this.renderRecentEntries();
+            this.renderRecentEntries(); // Make sure this line is present
         },
 
         changePage(page) {
@@ -469,26 +469,55 @@ function appData() {
         renderRecentEntries() {
             const recentEntries = document.getElementById('recentEntries');
             const recentEntriesHtml = this.entries.slice(0, 5).map((entry, index) => `
-                <div class="carousel-item ${index === 0 ? 'active' : ''}" data-entry-index="${index}">
-                    <img src="https://image.tmdb.org/t/p/w300${entry.poster_path}" alt="${entry.title} Poster" class="w-full h-auto">
-                    <p class="mt-2 text-center">${entry.title}</p>
+                <div class="swiper-slide">
+                    <div class="entry-card">
+                        <img src="https://image.tmdb.org/t/p/w300${entry.poster_path}" alt="${entry.title} Poster" class="w-full h-auto rounded-lg shadow-lg">
+                        <div class="entry-info p-4">
+                            <h3 class="text-lg font-semibold">${entry.title}</h3>
+                            <p class="text-sm text-gray-600">${entry.dateWatched}</p>
+                            <div class="rating mt-2">
+                                ${'★'.repeat(Math.round(entry.rating))}${'☆'.repeat(5 - Math.round(entry.rating))}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             `).join('');
             recentEntries.innerHTML = recentEntriesHtml;
 
-            // Add click event to view full entry
-            recentEntries.querySelectorAll('.carousel-item').forEach(item => {
-                item.addEventListener('click', () => {
-                    const index = parseInt(item.dataset.entryIndex);
-                    this.viewFullEntry(this.entries[index]);
-                });
+            // Initialize Swiper
+            new Swiper('.recent-entries-swiper', {
+                slidesPerView: 1,
+                spaceBetween: 30,
+                loop: true,
+                pagination: {
+                    el: '.swiper-pagination',
+                    clickable: true,
+                },
+                navigation: {
+                    nextEl: '.swiper-button-next',
+                    prevEl: '.swiper-button-prev',
+                },
+                breakpoints: {
+                    640: {
+                        slidesPerView: 2,
+                    },
+                    768: {
+                        slidesPerView: 3,
+                    },
+                    1024: {
+                        slidesPerView: 4,
+                    },
+                },
+                autoplay: {
+                    delay: 5000,
+                },
             });
 
-            // Initialize carousel
-            new Carousel(recentEntries, {
-                interval: 5000,
-                wrap: true,
-                touch: true
+            // Add click event to view full entry
+            recentEntries.querySelectorAll('.swiper-slide').forEach((slide, index) => {
+                slide.addEventListener('click', () => {
+                    this.viewFullEntry(this.entries[index]);
+                });
             });
         },
 
