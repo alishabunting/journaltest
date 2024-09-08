@@ -130,18 +130,22 @@ function appData() {
             overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center';
             const posterPath = entry.poster_path ? `https://image.tmdb.org/t/p/w300${entry.poster_path}` : 'path/to/default/image.jpg';
             overlay.innerHTML = `
-                <div class="bg-white p-6 rounded-lg max-w-2xl w-full max-h-90vh overflow-y-auto">
-                    <h3 class="text-2xl mb-4">${entry.title}</h3>
-                    <img src="${posterPath}" alt="${entry.title} Poster" class="float-right ml-4 mb-4">
-                    <p><strong>Type:</strong> ${entry.type}</p>
-                    <p><strong>Date Watched:</strong> ${entry.dateWatched}</p>
-                    <p><strong>Rating:</strong> ${entry.rating}/5</p>
-                    <p><strong>Tags:</strong> ${entry.tags}</p>
-                    <div class="mt-4"><strong>Notes:</strong></div>
-                    <div>${entry.notes}</div>
-                    <button class="apple-button mt-4 mr-2" onclick="appData().editEntry(${this.entries.indexOf(entry)})">Edit</button>
-                    <button class="apple-button mt-4 mr-2" onclick="appData().deleteEntry(${this.entries.indexOf(entry)})">Delete</button>
-                    <button class="apple-button mt-4" onclick="this.closest('.fixed').remove()">Close</button>
+                <div class="bg-white p-6 rounded-lg w-full max-w-2xl max-h-90vh overflow-y-auto flex">
+                    <img src="${posterPath}" alt="${entry.title} Poster" class="w-1/3 h-auto object-cover rounded-lg mr-6">
+                    <div class="w-2/3">
+                        <h3 class="text-2xl mb-4">${entry.title}</h3>
+                        <p><strong>Type:</strong> ${entry.type}</p>
+                        <p><strong>Date Watched:</strong> ${entry.dateWatched}</p>
+                        <p><strong>Rating:</strong> ${entry.rating}/5</p>
+                        <p><strong>Tags:</strong> ${entry.tags}</p>
+                        <div class="mt-4"><strong>Notes:</strong></div>
+                        <div>${entry.notes}</div>
+                        <div class="mt-4">
+                            <button class="apple-button mr-2" onclick="appData().editEntry(${this.entries.indexOf(entry)})">Edit</button>
+                            <button class="apple-button mr-2" onclick="appData().deleteEntry(${this.entries.indexOf(entry)})">Delete</button>
+                            <button class="apple-button" onclick="this.closest('.fixed').remove()">Close</button>
+                        </div>
+                    </div>
                 </div>
             `;
             document.body.appendChild(overlay);
@@ -442,6 +446,8 @@ function appData() {
                 this.saveEntries();
                 this.showNotification('Entry deleted successfully', 'success');
                 this.renderEntries();
+                this.renderRecentEntries();
+                document.querySelector('.fixed').remove(); // Close the modal
             }
         },
 
@@ -488,7 +494,7 @@ function appData() {
             new Swiper('.recent-entries-swiper', {
                 slidesPerView: 1,
                 spaceBetween: 30,
-                loop: true,
+                loop: false, // Disable loop mode
                 pagination: {
                     el: '.swiper-pagination',
                     clickable: true,
@@ -499,13 +505,13 @@ function appData() {
                 },
                 breakpoints: {
                     640: {
-                        slidesPerView: 2,
+                        slidesPerView: Math.min(2, this.entries.length),
                     },
                     768: {
-                        slidesPerView: 3,
+                        slidesPerView: Math.min(3, this.entries.length),
                     },
                     1024: {
-                        slidesPerView: 4,
+                        slidesPerView: Math.min(4, this.entries.length),
                     },
                 },
                 autoplay: {
