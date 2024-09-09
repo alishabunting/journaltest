@@ -127,28 +127,36 @@ function appData() {
 
         viewFullEntry(entry) {
             const overlay = document.createElement('div');
-            overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center';
+            overlay.className = 'fixed inset-0 flex items-center justify-center z-50';
+            overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)'; // Translucent dark background
             const posterPath = entry.poster_path ? `https://image.tmdb.org/t/p/w300${entry.poster_path}` : 'path/to/default/image.jpg';
             overlay.innerHTML = `
-                <div class="bg-white p-6 rounded-lg w-full max-w-2xl max-h-90vh overflow-y-auto flex">
-                    <img src="${posterPath}" alt="${entry.title} Poster" class="w-1/3 h-auto object-cover rounded-lg mr-6">
-                    <div class="w-2/3">
-                        <h3 class="text-2xl mb-4">${entry.title}</h3>
-                        <p><strong>Type:</strong> ${entry.type}</p>
-                        <p><strong>Date Watched:</strong> ${entry.dateWatched}</p>
-                        <p><strong>Rating:</strong> ${entry.rating}/5</p>
-                        <p><strong>Tags:</strong> ${entry.tags}</p>
-                        <div class="mt-4"><strong>Notes:</strong></div>
-                        <div>${entry.notes}</div>
-                        <div class="mt-4">
-                            <button class="apple-button mr-2" onclick="appData().editEntry(${this.entries.indexOf(entry)})">Edit</button>
-                            <button class="apple-button mr-2" onclick="appData().deleteEntry(${this.entries.indexOf(entry)})">Delete</button>
-                            <button class="apple-button" onclick="this.closest('.fixed').remove()">Close</button>
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg w-full max-w-3xl max-h-90vh overflow-y-auto flex flex-col md:flex-row shadow-lg" style="margin-left: 250px;"> <!-- Adjust margin to avoid sidebar -->
+                    <img src="${posterPath}" alt="${entry.title} Poster" class="w-full md:w-1/3 h-auto object-cover rounded-lg mb-4 md:mb-0 md:mr-6">
+                    <div class="w-full md:w-2/3">
+                        <h3 class="text-2xl mb-4 font-bold text-gray-900 dark:text-white">${entry.title}</h3>
+                        <p class="mb-2"><strong class="text-gray-700 dark:text-gray-300">Type:</strong> <span class="text-gray-900 dark:text-white">${entry.type}</span></p>
+                        <p class="mb-2"><strong class="text-gray-700 dark:text-gray-300">Date Watched:</strong> <span class="text-gray-900 dark:text-white">${entry.dateWatched}</span></p>
+                        <p class="mb-2"><strong class="text-gray-700 dark:text-gray-300">Rating:</strong> <span class="text-gray-900 dark:text-white">${entry.rating}/5</span></p>
+                        <p class="mb-2"><strong class="text-gray-700 dark:text-gray-300">Tags:</strong> <span class="text-gray-900 dark:text-white">${entry.tags}</span></p>
+                        <div class="mt-4 mb-2"><strong class="text-gray-700 dark:text-gray-300">Notes:</strong></div>
+                        <div class="text-gray-900 dark:text-white">${entry.notes}</div>
+                        <div class="mt-6 flex space-x-4">
+                            <button class="apple-button" @click="editEntry('${entry.id}')">Edit</button>
+                            <button class="apple-button" @click="deleteEntry('${entry.id}')">Delete</button>
+                            <button class="apple-button" @click="closeModal()">Close</button>
                         </div>
                     </div>
                 </div>
             `;
             document.body.appendChild(overlay);
+        },
+
+        closeModal() {
+            const modal = document.querySelector('.fixed');
+            if (modal) {
+                modal.remove();
+            }
         },
 
         sortEntries(entries) {
@@ -370,6 +378,7 @@ function appData() {
 
         addEntry() {
             const newEntry = {
+                id: Date.now().toString(), // Add this line to create a unique id
                 type: this.entryType,
                 title: this.title,
                 dateWatched: this.dateWatched,
@@ -428,26 +437,39 @@ function appData() {
             this.addEntryStep = 1;  // Reset to step 1
         },
 
-        editEntry(index) {
-            this.selectedItem = this.entries[index];
-            this.entryType = this.selectedItem.type;
-            this.title = this.selectedItem.title;
-            this.dateWatched = this.selectedItem.dateWatched;
-            this.season = this.selectedItem.season;
-            this.rating = this.selectedItem.rating;
-            this.tags = this.selectedItem.tags;
-            quill.root.innerHTML = this.selectedItem.notes;
-            this.changePage('addEntry');
+        editEntry(entryId) {
+            const entry = this.entries.find(e => e.id === entryId);
+            if (entry) {
+                this.selectedItem = entry;
+                this.entryType = entry.type;
+                this.title = entry.title;
+                this.dateWatched = entry.dateWatched;
+                this.season = entry.season;
+                this.rating = entry.rating;
+                this.tags = entry.tags;
+                if (quill) {
+                    quill.root.innerHTML = entry.notes;
+                }
+                this.closeModal();
+                this.changePage('addEntry');
+            } else {
+                console.error('Entry not found');
+            }
         },
 
-        deleteEntry(index) {
+        deleteEntry(entryId) {
             if (confirm('Are you sure you want to delete this entry?')) {
-                this.entries.splice(index, 1);
-                this.saveEntries();
-                this.showNotification('Entry deleted successfully', 'success');
-                this.renderEntries();
-                this.renderRecentEntries();
-                document.querySelector('.fixed').remove(); // Close the modal
+                const index = this.entries.findIndex(e => e.id === entryId);
+                if (index !== -1) {
+                    this.entries.splice(index, 1);
+                    this.saveEntries();
+                    this.showNotification('Entry deleted successfully', 'success');
+                    this.closeModal();
+                    this.renderEntries();
+                    this.renderRecentEntries();
+                } else {
+                    console.error('Entry not found');
+                }
             }
         },
 
@@ -492,8 +514,8 @@ function appData() {
 
             // Initialize Swiper
             new Swiper('.recent-entries-swiper', {
-                slidesPerView: 1,
-                spaceBetween: 30,
+                slidesPerView: 'auto',
+                spaceBetween: 20,
                 loop: false, // Disable loop mode
                 pagination: {
                     el: '.swiper-pagination',
@@ -505,13 +527,13 @@ function appData() {
                 },
                 breakpoints: {
                     640: {
-                        slidesPerView: Math.min(2, this.entries.length),
+                        slidesPerView: 2,
                     },
                     768: {
-                        slidesPerView: Math.min(3, this.entries.length),
+                        slidesPerView: 3,
                     },
                     1024: {
-                        slidesPerView: Math.min(4, this.entries.length),
+                        slidesPerView: 4,
                     },
                 },
                 autoplay: {
